@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Dashboard', ~{::div#content})}">
+<body>
+    <div id="content">
+        <!-- Welcome Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h2 class="text-white mb-2">Xin chào, <span id="welcome-user" class="text-primary font-weight-bold">RMS User</span>!</h2>
+                        <p class="text-secondary m-0">Chào mừng bạn trở lại hệ thống quản lý nhà hàng. Chọn các chức năng từ Sidebar hoặc thẻ bên dưới để bắt đầu ca làm việc.</p>
+                    </div>
+                    <div class="d-none d-md-block">
+                        <i class="bi bi-person-workspace text-primary-hover" style="font-size: 64px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Badge Info -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <h6 class="text-white mb-2"><i class="bi bi-info-circle-fill text-primary me-2"></i>Quyền hạn hiện tại</h6>
+                        <p class="text-secondary small m-0">Menu bên trái đã tự động cấu hình dựa trên vai trò làm việc của bạn. Nếu cần thay đổi quyền hoặc gặp sự cố truy cập, vui lòng liên hệ <strong>Quản trị viên (Admin)</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Stat Cards (Shown for Admin/Manager) -->
+        <div class="row g-4 mb-4">
+            <!-- Stat 1 -->
+            <div class="col-12 col-sm-6 col-xl-3" data-role-required="MANAGER">
+                <div class="glass-card stat-card">
+                    <div>
+                        <span class="text-secondary small">Doanh thu ngày</span>
+                        <div class="stat-value text-success">15,240,000đ</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Stat 2 -->
+            <div class="col-12 col-sm-6 col-xl-3" data-role-required="MANAGER">
+                <div class="glass-card stat-card">
+                    <div>
+                        <span class="text-secondary small">Đơn hàng mới</span>
+                        <div class="stat-value text-white">42 đơn</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Stat 3 -->
+            <div class="col-12 col-sm-6 col-xl-3" data-role-required="WAITSTAFF">
+                <div class="glass-card stat-card">
+                    <div>
+                        <span class="text-secondary small">Bàn đang sử dụng</span>
+                        <div class="stat-value text-warning">8 / 20 bàn</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-grid"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Stat 4 -->
+            <div class="col-12 col-sm-6 col-xl-3" data-role-required="CHEF">
+                <div class="glass-card stat-card">
+                    <div>
+                        <span class="text-secondary small">Món cần chế biến</span>
+                        <div class="stat-value text-danger">5 món</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Quick Access Panels -->
+        <h4 class="text-white mb-3">Truy cập nhanh chức năng</h4>
+        <div class="row g-4">
+            <!-- Admin Panel -->
+            <div class="col-12 col-md-6 col-lg-4" data-role-required="ADMIN">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-white mb-3"><i class="bi bi-people-fill text-primary me-2"></i>Nhân viên</h5>
+                    <p class="text-secondary small mb-4">Quản lý tài khoản đăng nhập của nhân viên nhà hàng, tạo mới và phân quyền vai trò làm việc.</p>
+                    <a href="/employees" class="btn btn-outline-primary btn-sm">Mở quản lý</a>
+                </div>
+            </div>
+
+            <!-- Manager Menu Panel -->
+            <div class="col-12 col-md-6 col-lg-4" data-role-required="MANAGER">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-white mb-3"><i class="bi bi-journals text-primary me-2"></i>Thực đơn</h5>
+                    <p class="text-secondary small mb-4">Thêm mới món ăn, chỉnh sửa giá bán, cập nhật hình ảnh đại diện và trạng thái còn/hết hàng.</p>
+                    <a href="/menu" class="btn btn-outline-primary btn-sm">Mở quản lý món</a>
+                </div>
+            </div>
+
+            <!-- Cashier Panel -->
+            <div class="col-12 col-md-6 col-lg-4" data-role-required="CASHIER">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-white mb-3"><i class="bi bi-wallet2 text-primary me-2"></i>Thanh toán</h5>
+                    <p class="text-secondary small mb-4">Theo dõi các đơn hàng đang chờ thanh toán, áp dụng mã giảm giá và xác nhận giao dịch.</p>
+                    <a href="/payments" class="btn btn-outline-primary btn-sm">Mở quầy POS</a>
+                </div>
+            </div>
+
+            <!-- Waitstaff Panel -->
+            <div class="col-12 col-md-6 col-lg-4" data-role-required="WAITSTAFF">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-white mb-3"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Gọi món</h5>
+                    <p class="text-secondary small mb-4">Mở bàn mới cho khách hàng, ghi nhận các món ăn yêu cầu, ghi chú đặc biệt và chuyển xuống bếp.</p>
+                    <a href="/tables/map" class="btn btn-outline-primary btn-sm">Xem sơ đồ bàn</a>
+                </div>
+            </div>
+
+            <!-- Chef Panel -->
+            <div class="col-12 col-md-6 col-lg-4" data-role-required="CHEF">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-white mb-3"><i class="bi bi-fire text-primary me-2"></i>Nhà bếp</h5>
+                    <p class="text-secondary small mb-4">Tiếp nhận thông tin gọi món thời gian thực từ nhân viên phục vụ, chế biến và cập nhật trạng thái món.</p>
+                    <a href="/kitchen" class="btn btn-outline-primary btn-sm">Mở màn hình bếp</a>
+                </div>
+            </div>
+
+            <!-- Customer Panel -->
+            <div class="col-12 col-md-6 col-lg-4" data-role-required="CUSTOMER">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-white mb-3"><i class="bi bi-cart4 text-primary me-2"></i>Dành cho khách</h5>
+                    <p class="text-secondary small mb-4">Đặt bàn ăn trước khung giờ đến, đặt món tại bàn qua mã QR và gửi nhận xét đánh giá dịch vụ.</p>
+                    <a href="/reservations/create" class="btn btn-outline-primary btn-sm">Đặt bàn ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

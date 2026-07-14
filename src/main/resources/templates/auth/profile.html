@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Hồ sơ cá nhân', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-person-circle text-primary me-2"></i>Hồ sơ cá nhân</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small">Tên đăng nhập</label>
+                            <div class="text-white font-weight-bold" id="profile-detail-username">Loading...</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small">Vai trò / Chức vụ</label>
+                            <div><span class="badge bg-primary" id="profile-detail-role">Loading...</span></div>
+                        </div>
+                        <div class="col-sm-6 mt-4">
+                            <label class="form-label text-secondary small">Địa chỉ Email</label>
+                            <div class="text-white" id="profile-detail-email">Loading...</div>
+                        </div>
+                        <div class="col-sm-6 mt-4">
+                            <label class="form-label text-secondary small">Số điện thoại</label>
+                            <div class="text-white" id="profile-detail-phone">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5 d-flex gap-2">
+                        <a href="/change-password" class="btn btn-outline-light btn-sm"><i class="bi bi-shield-lock me-2"></i>Đổi mật khẩu</a>
+                        <a href="/dashboard" class="btn btn-primary-glass btn-sm"><i class="bi bi-arrow-left me-2"></i>Quay lại</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    const response = await customFetch('/api/auth/profile');
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data) {
+                            const user = result.data;
+                            document.getElementById('profile-detail-username').textContent = user.username;
+                            document.getElementById('profile-detail-email').textContent = user.email || 'Chưa thiết lập';
+                            document.getElementById('profile-detail-phone').textContent = user.phone || 'Chưa thiết lập';
+                            
+                            const roleMap = {
+                                'ADMIN': 'Quản trị viên',
+                                'MANAGER': 'Quản lý',
+                                'WAITSTAFF': 'Nhân viên phục vụ',
+                                'CASHIER': 'Thu ngân',
+                                'CHEF': 'Đầu bếp',
+                                'CUSTOMER': 'Khách hàng'
+                            };
+                            document.getElementById('profile-detail-role').textContent = roleMap[user.role] || user.role;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load profile details:', e);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

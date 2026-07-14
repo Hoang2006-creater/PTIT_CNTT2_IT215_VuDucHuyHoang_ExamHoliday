@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Lịch sử đặt bàn', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h3 class="text-white m-0"><i class="bi bi-calendar-event text-primary me-2"></i>Lịch sử đặt bàn</h3>
+                        <a href="/reservations/create" class="btn btn-primary-glass btn-sm"><i class="bi bi-calendar-plus me-2"></i>Đặt bàn mới</a>
+                    </div>
+                    
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Khách hàng</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Số lượng khách</th>
+                                    <th>Thời gian hẹn</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservations-table-body">
+                                <tr>
+                                    <td colspan="6" class="text-center text-secondary py-4">Đang tải lịch sử đặt bàn...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    const response = await customFetch('/api/reservations'); // Assuming endpoint exists
+                    if (response.ok) {
+                        const result = await response.json();
+                        const tableBody = document.getElementById('reservations-table-body');
+                        tableBody.innerHTML = '';
+                        
+                        if (result.success && result.data && result.data.length > 0) {
+                            result.data.forEach(res => {
+                                const tr = document.createElement('tr');
+                                const dt = new Date(res.reservationTime).toLocaleString('vi-VN');
+                                tr.innerHTML = `
+                                    <td>${res.id}</td>
+                                    <td class="text-white font-weight-bold">${res.customerName}</td>
+                                    <td>${res.customerPhone}</td>
+                                    <td>${res.guestCount} người</td>
+                                    <td>${dt}</td>
+                                    <td><span class="badge bg-${res.status === 'CONFIRMED' ? 'success' : (res.status === 'PENDING' ? 'warning' : 'secondary')}">${res.status}</span></td>
+                                `;
+                                tableBody.appendChild(tr);
+                            });
+                        } else {
+                            tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">Không tìm thấy yêu cầu đặt bàn nào.</td></tr>';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load reservations list:', e);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

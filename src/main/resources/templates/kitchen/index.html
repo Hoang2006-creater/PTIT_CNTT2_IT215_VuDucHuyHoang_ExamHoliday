@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Quản lý nhà bếp', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-fire text-primary me-2"></i>Màn hình chế biến nhà bếp</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Mã món gọi</th>
+                                    <th>Tên món ăn</th>
+                                    <th>Số lượng</th>
+                                    <th>Bàn ăn</th>
+                                    <th>Ghi chú đặc biệt</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="kitchen-table-body">
+                                <tr>
+                                    <td colspan="6" class="text-center text-secondary py-4">Đang tải các yêu cầu chế biến thực phẩm...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    const response = await customFetch('/api/kitchen'); // Assuming endpoint exists
+                    if (response.ok) {
+                        const result = await response.json();
+                        const tableBody = document.getElementById('kitchen-table-body');
+                        tableBody.innerHTML = '';
+                        
+                        if (result.success && result.data && result.data.length > 0) {
+                            result.data.forEach(item => {
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td>#${item.id}</td>
+                                    <td class="text-white font-weight-bold">${item.menuItemName}</td>
+                                    <td>${item.quantity} phần</td>
+                                    <td>${item.tableNumber}</td>
+                                    <td class="text-warning">${item.notes || '-'}</td>
+                                    <td><span class="badge bg-${item.status === 'COOKED' ? 'success' : 'danger'}">${item.status}</span></td>
+                                `;
+                                tableBody.appendChild(tr);
+                            });
+                        } else {
+                            tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">Không có món ăn nào đang chờ chế biến.</td></tr>';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load kitchen dishes:', e);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header-fragment('RMS - Đăng ký')}">
+</head>
+<body>
+    <!-- Inject register style overrides -->
+    <link rel="stylesheet" th:href="@{/css/register.css}">
+
+    <!-- Background overlay -->
+    <div class="bg-gradient-shapes"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Branding Header -->
+            <div class="auth-brand">
+                <i class="bi bi-egg-fried me-2"></i><span>RMS</span> System
+            </div>
+            <div class="auth-subtitle">Đăng ký tài khoản khách hàng mới</div>
+
+            <!-- Registration Form -->
+            <form id="register-form" class="auth-form mt-4">
+                
+                <!-- Username -->
+                <div class="mb-3">
+                    <label for="reg-username" class="form-label">Tên đăng nhập</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" class="form-control form-control-glass" id="reg-username" placeholder="Nhập tên đăng nhập..." required>
+                    </div>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <!-- Họ tên (Real name, cosmetic frontend field) -->
+                <div class="mb-3">
+                    <label for="reg-fullname" class="form-label">Họ và tên</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                        <input type="text" class="form-control form-control-glass" id="reg-fullname" placeholder="Nhập họ và tên của bạn...">
+                    </div>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="reg-email" class="form-label">Địa chỉ Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control form-control-glass" id="reg-email" placeholder="example@domain.com..." required>
+                    </div>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label for="reg-phone" class="form-label">Số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                        <input type="text" class="form-control form-control-glass" id="reg-phone" placeholder="Nhập số điện thoại..." required>
+                    </div>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label for="reg-password" class="form-label">Mật khẩu</label>
+                    <div class="password-toggle-container input-group">
+                        <span class="input-group-text"><i class="bi bi-key"></i></span>
+                        <input type="password" class="form-control form-control-glass" id="reg-password" placeholder="Nhập mật khẩu..." required>
+                        <button type="button" class="password-toggle-btn" id="toggleRegPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback"></div>
+
+                    <!-- Password Strength Meter -->
+                    <div class="password-strength-container">
+                        <div class="password-strength-label">
+                            <span>Độ mạnh mật khẩu:</span>
+                            <span id="strength-text" class="password-strength-text">Trống</span>
+                        </div>
+                        <div class="password-strength-bars">
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Requirements list -->
+                    <ul class="validation-list">
+                        <li class="validation-item" id="req-length">
+                            <i class="bi bi-circle"></i> Tối thiểu 8 ký tự
+                        </li>
+                        <li class="validation-item" id="req-case">
+                            <i class="bi bi-circle"></i> Chữ hoa & chữ thường
+                        </li>
+                        <li class="validation-item" id="req-special">
+                            <i class="bi bi-circle"></i> Số hoặc ký tự đặc biệt
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-3">
+                    <label for="reg-confirm-password" class="form-label">Xác nhận mật khẩu</label>
+                    <div class="password-toggle-container input-group">
+                        <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                        <input type="password" class="form-control form-control-glass" id="reg-confirm-password" placeholder="Xác nhận lại mật khẩu..." required>
+                        <button type="button" class="password-toggle-btn" id="toggleConfirmPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-glass w-100 mt-2 mb-3">
+                    <i class="bi bi-person-plus me-2"></i>Đăng ký tài khoản
+                </button>
+                
+                <div class="text-center mt-3">
+                    <span class="text-secondary small">Đã có tài khoản? </span>
+                    <a href="/login" class="text-primary small text-decoration-none">Đăng nhập ngay</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Page Scripts -->
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/register.js}"></script>
+</body>
+</html>

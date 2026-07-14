@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Chi tiết tài khoản', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-info-circle-fill text-primary me-2"></i>Chi tiết tài khoản</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small">Tên đăng nhập</label>
+                            <div class="text-white font-weight-bold" id="detail-username">Loading...</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small">Quyền hạn / Vai trò</label>
+                            <div><span class="badge bg-primary" id="detail-role">Loading...</span></div>
+                        </div>
+                        <div class="col-sm-6 mt-4">
+                            <label class="form-label text-secondary small">Số điện thoại</label>
+                            <div class="text-white" id="detail-phone">Loading...</div>
+                        </div>
+                        <div class="col-sm-6 mt-4">
+                            <label class="form-label text-secondary small">Địa chỉ Email</label>
+                            <div class="text-white" id="detail-email">Loading...</div>
+                        </div>
+                        <div class="col-sm-6 mt-4">
+                            <label class="form-label text-secondary small">Trạng thái hoạt động</label>
+                            <div><span class="badge" id="detail-status">Loading...</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5 d-flex gap-2">
+                        <a href="#" id="edit-btn-link" class="btn btn-warning-glass btn-sm"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa</a>
+                        <a href="/accounts" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-2"></i>Quay lại</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const accountId = window.location.pathname.split('/').pop();
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                document.getElementById('edit-btn-link').href = `/accounts/edit/${accountId}`;
+                try {
+                    const response = await customFetch(`/api/users/manage/detail/${accountId}`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data) {
+                            const user = result.data;
+                            document.getElementById('detail-username').textContent = user.username;
+                            document.getElementById('detail-phone').textContent = user.phone;
+                            document.getElementById('detail-email').textContent = user.email || 'Chưa cập nhật';
+                            
+                            const roleMap = {
+                                'ADMIN': 'Quản trị viên',
+                                'MANAGER': 'Quản lý',
+                                'WAITSTAFF': 'Nhân viên phục vụ',
+                                'CASHIER': 'Thu ngân',
+                                'CHEF': 'Đầu bếp',
+                                'CUSTOMER': 'Khách hàng'
+                            };
+                            document.getElementById('detail-role').textContent = roleMap[user.role.name] || user.role.name;
+                            
+                            const statusBadge = document.getElementById('detail-status');
+                            statusBadge.textContent = user.status;
+                            statusBadge.className = `badge bg-${user.status === 'ACTIVE' ? 'success' : 'danger'}`;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load account details:', e);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

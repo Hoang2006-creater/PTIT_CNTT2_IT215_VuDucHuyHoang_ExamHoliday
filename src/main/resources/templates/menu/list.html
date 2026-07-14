@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Quản lý thực đơn', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h3 class="text-white m-0"><i class="bi bi-journals text-primary me-2"></i>Quản lý thực đơn</h3>
+                        <a href="/categories" class="btn btn-outline-primary btn-sm"><i class="bi bi-tags me-2"></i>Quản lý danh mục</a>
+                    </div>
+                    
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tên món ăn</th>
+                                    <th>Danh mục</th>
+                                    <th>Đơn giá</th>
+                                    <th>Còn hàng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="menu-table-body">
+                                <tr>
+                                    <td colspan="5" class="text-center text-secondary py-4">Đang tải danh sách thực đơn...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    const response = await customFetch('/api/menu-items'); // Assuming endpoint exists
+                    if (response.ok) {
+                        const result = await response.json();
+                        const tableBody = document.getElementById('menu-table-body');
+                        tableBody.innerHTML = '';
+                        
+                        if (result.success && result.data && result.data.length > 0) {
+                            result.data.forEach(item => {
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td>${item.id}</td>
+                                    <td class="text-white font-weight-bold">${item.name}</td>
+                                    <td><span class="badge bg-secondary">${item.category ? item.category.name : 'Không phân loại'}</span></td>
+                                    <td class="text-success font-weight-bold">${item.price.toLocaleString('vi-VN')}đ</td>
+                                    <td><span class="badge bg-${item.available ? 'success' : 'danger'}">${item.available ? 'CÒN HÀNG' : 'HẾT HÀNG'}</span></td>
+                                `;
+                                tableBody.appendChild(tr);
+                            });
+                        } else {
+                            tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">Không tìm thấy món ăn nào.</td></tr>';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load menu list:', e);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

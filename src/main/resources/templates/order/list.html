@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Quản lý gọi món', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-cart-fill text-primary me-2"></i>Quản lý gọi món</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Mã hóa đơn</th>
+                                    <th>Bàn ăn</th>
+                                    <th>Thời điểm gọi</th>
+                                    <th>Tổng tiền tạm tính</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                <tr>
+                                    <td colspan="5" class="text-center text-secondary py-4">Đang tải danh sách đơn hàng...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    const response = await customFetch('/api/orders'); // Assuming endpoint exists
+                    if (response.ok) {
+                        const result = await response.json();
+                        const tableBody = document.getElementById('orders-table-body');
+                        tableBody.innerHTML = '';
+                        
+                        if (result.success && result.data && result.data.length > 0) {
+                            result.data.forEach(o => {
+                                const tr = document.createElement('tr');
+                                const dt = new Date(o.orderTime).toLocaleString('vi-VN');
+                                tr.innerHTML = `
+                                    <td>#${o.id}</td>
+                                    <td class="text-white font-weight-bold">${o.table ? o.table.tableNumber : 'Mang về'}</td>
+                                    <td>${dt}</td>
+                                    <td class="text-success font-weight-bold">${o.totalAmount.toLocaleString('vi-VN')}đ</td>
+                                    <td><span class="badge bg-${o.status === 'COMPLETED' ? 'success' : (o.status === 'OPEN' ? 'primary' : 'secondary')}">${o.status}</span></td>
+                                `;
+                                tableBody.appendChild(tr);
+                            });
+                        } else {
+                            tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">Không tìm thấy hóa đơn/đơn hàng nào.</td></tr>';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load orders:', e);
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

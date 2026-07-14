@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Thêm nhân viên mới', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-person-plus text-primary me-2"></i>Thêm nhân viên mới</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <form id="create-employee-form">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="fullName" class="form-label text-secondary small">Họ và tên nhân viên</label>
+                                <input type="text" class="form-control form-control-glass" id="fullName" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="position" class="form-label text-secondary small">Vị trí công việc / Chức vụ</label>
+                                <input type="text" class="form-control form-control-glass" id="position" placeholder="ví dụ: Phục vụ, Đầu bếp..." required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="salary" class="form-label text-secondary small">Lương cơ bản (đ)</label>
+                                <input type="number" class="form-control form-control-glass" id="salary" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="hireDate" class="form-label text-secondary small">Ngày bắt đầu làm việc</label>
+                                <input type="date" class="form-control form-control-glass" id="hireDate" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="userId" class="form-label text-secondary small">Liên kết tài khoản đăng nhập (ID)</label>
+                                <input type="number" class="form-control form-control-glass" id="userId" placeholder="Nhập ID tài khoản...">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary-glass btn-sm"><i class="bi bi-check-lg me-2"></i>Thêm nhân viên</button>
+                            <a href="/employees" class="btn btn-outline-light btn-sm"><i class="bi bi-x-lg me-2"></i>Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('create-employee-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fullName = document.getElementById('fullName').value;
+                const position = document.getElementById('position').value;
+                const salary = parseFloat(document.getElementById('salary').value);
+                const hireDate = document.getElementById('hireDate').value;
+                const val = document.getElementById('userId').value;
+                const userId = val ? parseInt(val) : null;
+                
+                showLoading(true);
+                try {
+                    const response = await customFetch('/api/employees', {
+                        method: 'POST',
+                        body: JSON.stringify({ fullName, position, salary, hireDate, userId })
+                    });
+                    showLoading(false);
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast('Thêm nhân viên thành công!', 'success');
+                        setTimeout(() => { window.location.href = '/employees'; }, 1500);
+                    } else {
+                        showToast(result.message || 'Lỗi khi thêm nhân viên.', 'error');
+                    }
+                } catch (err) {
+                    showLoading(false);
+                    showToast('Lỗi kết nối máy chủ.', 'error');
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

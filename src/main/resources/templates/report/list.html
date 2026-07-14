@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Thống kê & Báo cáo', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h3 class="text-white m-0"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Thống kê & Báo cáo doanh thu</h3>
+                        <a href="/dashboard/statistics" class="btn btn-primary-glass btn-sm"><i class="bi bi-pie-chart-fill me-2"></i>Xem biểu đồ chi tiết</a>
+                    </div>
+                    
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-dark border-secondary p-3">
+                                <h6 class="text-secondary small mb-3">TỔNG QUAN DOANH THU THÁNG NÀY</h6>
+                                <h2 class="text-success font-weight-bold">428,500,000đ</h2>
+                                <p class="text-secondary small mt-2 m-0"><i class="bi bi-arrow-up-right text-success me-1"></i>+12% so với tháng trước</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-dark border-secondary p-3">
+                                <h6 class="text-secondary small mb-3">TỔNG ĐƠN HÀNG THÀNH CÔNG</h6>
+                                <h2 class="text-white font-weight-bold">1,824 đơn</h2>
+                                <p class="text-secondary small mt-2 m-0"><i class="bi bi-arrow-up-right text-success me-1"></i>+8.5% so với tháng trước</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navbar-fragment" class="navbar-dashboard">
+    <div class="d-flex align-items-center">
+        <button id="toggleSidebar" class="sidebar-toggle-btn me-3">
+            <i class="bi bi-list"></i>
+        </button>
+        <h5 class="m-0 font-weight-bold text-white d-none d-sm-block">Restaurant Management System</h5>
+    </div>
+    
+    <div class="dropdown">
+        <button class="btn btn-outline-light dropdown-toggle border-0" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-user-circle me-1"></i>
+            <span id="profile-name" class="font-weight-bold">Loading...</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userMenu">
+            <li>
+                <div class="px-3 py-2">
+                    <div id="profile-email" class="small text-muted text-truncate" style="max-width: 200px;">email@example.com</div>
+                    <span id="role-badge" class="badge bg-primary mt-1">Role</span>
+                </div>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item text-danger" href="#" id="logoutBtn">
+                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+</body>
+</html>

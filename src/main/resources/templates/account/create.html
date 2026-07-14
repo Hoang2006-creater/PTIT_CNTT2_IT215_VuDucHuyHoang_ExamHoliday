@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Tạo tài khoản mới', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-person-plus text-primary me-2"></i>Tạo tài khoản mới</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <form id="create-account-form">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="username" class="form-label text-secondary small">Tên đăng nhập</label>
+                                <input type="text" class="form-control form-control-glass" id="username" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="password" class="form-label text-secondary small">Mật khẩu ban đầu</label>
+                                <input type="password" class="form-control form-control-glass" id="password" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label text-secondary small">Số điện thoại</label>
+                                <input type="text" class="form-control form-control-glass" id="phone" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="email" class="form-label text-secondary small">Địa chỉ Email</label>
+                                <input type="email" class="form-control form-control-glass" id="email">
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="roleId" class="form-label text-secondary small">Quyền hạn</label>
+                                <select class="form-select form-select-glass" id="roleId" required>
+                                    <option value="1">ADMIN (Quản trị viên)</option>
+                                    <option value="2">MANAGER (Quản lý)</option>
+                                    <option value="3">WAITSTAFF (Phục vụ)</option>
+                                    <option value="4">CASHIER (Thu ngân)</option>
+                                    <option value="5">CHEF (Bếp trưởng)</option>
+                                    <option value="6" selected>CUSTOMER (Khách hàng)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary-glass btn-sm"><i class="bi bi-check-lg me-2"></i>Tạo tài khoản</button>
+                            <a href="/accounts" class="btn btn-outline-light btn-sm"><i class="bi bi-x-lg me-2"></i>Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('create-account-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const phone = document.getElementById('phone').value;
+                const email = document.getElementById('email').value;
+                const roleId = parseInt(document.getElementById('roleId').value);
+                
+                showLoading(true);
+                try {
+                    const response = await customFetch('/api/users/manage/create', {
+                        method: 'POST',
+                        body: JSON.stringify({ username, password, phone, email, roleId })
+                    });
+                    showLoading(false);
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast('Tạo tài khoản thành công!', 'success');
+                        setTimeout(() => { window.location.href = '/accounts'; }, 1500);
+                    } else {
+                        showToast(result.message || 'Lỗi khi tạo tài khoản.', 'error');
+                    }
+                } catch (err) {
+                    showLoading(false);
+                    showToast('Lỗi kết nối máy chủ.', 'error');
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

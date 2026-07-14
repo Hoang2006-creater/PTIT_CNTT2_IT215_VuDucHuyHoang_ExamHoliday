@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Chỉnh sửa khách hàng', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-pencil-square text-primary me-2"></i>Chỉnh sửa thông tin khách hàng</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <form id="edit-customer-form">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="fullName" class="form-label text-secondary small">Họ và tên khách hàng</label>
+                                <input type="text" class="form-control form-control-glass" id="fullName" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label text-secondary small">Số điện thoại</label>
+                                <input type="text" class="form-control form-control-glass" id="phone" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="loyaltyPoints" class="form-label text-secondary small">Điểm tích lũy</label>
+                                <input type="number" class="form-control form-control-glass" id="loyaltyPoints" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="membershipClass" class="form-label text-secondary small">Hạng thành viên</label>
+                                <select class="form-select form-select-glass" id="membershipClass" required>
+                                    <option value="BRONZE">BRONZE (Đồng)</option>
+                                    <option value="SILVER">SILVER (Bạc)</option>
+                                    <option value="GOLD">GOLD (Vàng)</option>
+                                    <option value="PLATINUM">PLATINUM (Bạch kim)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary-glass btn-sm"><i class="bi bi-save me-2"></i>Lưu thay đổi</button>
+                            <a href="/customers" class="btn btn-outline-light btn-sm"><i class="bi bi-x-lg me-2"></i>Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const customerId = window.location.pathname.split('/').pop();
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                try {
+                    const response = await customFetch(`/api/customers/${customerId}`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data) {
+                            const cust = result.data;
+                            document.getElementById('fullName').value = cust.fullName;
+                            document.getElementById('phone').value = cust.phone;
+                            document.getElementById('loyaltyPoints').value = cust.loyaltyPoints;
+                            document.getElementById('membershipClass').value = cust.membershipClass;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load customer details:', e);
+                }
+            });
+
+            document.getElementById('edit-customer-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fullName = document.getElementById('fullName').value;
+                const phone = document.getElementById('phone').value;
+                const loyaltyPoints = parseInt(document.getElementById('loyaltyPoints').value);
+                const membershipClass = document.getElementById('membershipClass').value;
+                
+                showLoading(true);
+                try {
+                    const response = await customFetch(`/api/customers/${customerId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ fullName, phone, loyaltyPoints, membershipClass })
+                    });
+                    showLoading(false);
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast('Cập nhật khách hàng thành công!', 'success');
+                        setTimeout(() => { window.location.href = '/customers'; }, 1500);
+                    } else {
+                        showToast(result.message || 'Lỗi khi cập nhật.', 'error');
+                    }
+                } catch (err) {
+                    showLoading(false);
+                    showToast('Lỗi kết nối máy chủ.', 'error');
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

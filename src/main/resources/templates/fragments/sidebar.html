@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <div th:fragment="sidebar-fragment" id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-egg-fried me-2 text-primary"></i><span>RMS</span> Restaurant
+        </div>
+
+        <ul class="sidebar-menu">
+            <!-- Common Link -->
+            <li class="sidebar-menu-item">
+                <a href="/dashboard" class="sidebar-menu-link">
+                    <i class="bi bi-speedometer2"></i>Dashboard
+                </a>
+            </li>
+
+            <!-- Admin only -->
+            <li class="sidebar-menu-item" data-role-required="ADMIN">
+                <a href="/accounts" class="sidebar-menu-link">
+                    <i class="bi bi-shield-lock-fill"></i>Quản trị tài khoản
+                </a>
+            </li>
+            <li class="sidebar-menu-item" data-role-required="ADMIN">
+                <a href="/employees" class="sidebar-menu-link">
+                    <i class="bi bi-people-fill"></i>Quản trị nhân viên
+                </a>
+            </li>
+
+            <!-- Manager -->
+            <li class="sidebar-menu-item" data-role-required="MANAGER">
+                <a href="/customers" class="sidebar-menu-link">
+                    <i class="bi bi-person-badge-fill"></i>Quản lý khách hàng
+                </a>
+            </li>
+            <li class="sidebar-menu-item" data-role-required="MANAGER">
+                <a href="/menu" class="sidebar-menu-link">
+                    <i class="bi bi-journals"></i>Quản lý thực đơn
+                </a>
+            </li>
+            <li class="sidebar-menu-item" data-role-required="MANAGER">
+                <a href="/categories" class="sidebar-menu-link">
+                    <i class="bi bi-tags-fill"></i>Danh mục thực đơn
+                </a>
+            </li>
+            <li class="sidebar-menu-item" data-role-required="MANAGER">
+                <a href="/promotions" class="sidebar-menu-link">
+                    <i class="bi bi-gift-fill"></i>Chương trình khuyến mãi
+                </a>
+            </li>
+            <li class="sidebar-menu-item" data-role-required="MANAGER">
+                <a href="/reports" class="sidebar-menu-link">
+                    <i class="bi bi-graph-up-arrow"></i>Thống kê & Báo cáo
+                </a>
+            </li>
+
+            <!-- Cashier -->
+            <li class="sidebar-menu-item" data-role-required="CASHIER">
+                <a href="/payments" class="sidebar-menu-link">
+                    <i class="bi bi-wallet2"></i>Thanh toán hóa đơn
+                </a>
+            </li>
+
+            <!-- Waitstaff -->
+            <li class="sidebar-menu-item" data-role-required="WAITSTAFF">
+                <a href="/tables/map" class="sidebar-menu-link">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>Sơ đồ bàn & Gọi món
+                </a>
+            </li>
+
+            <!-- Chef -->
+            <li class="sidebar-menu-item" data-role-required="CHEF">
+                <a href="/kitchen" class="sidebar-menu-link">
+                    <i class="bi bi-fire"></i>Bếp & Chế biến
+                </a>
+            </li>
+
+            <!-- Customer -->
+            <li class="sidebar-menu-item" data-role-required="CUSTOMER">
+                <a href="/reservations" class="sidebar-menu-link">
+                    <i class="bi bi-calendar-event"></i>Lịch sử đặt bàn
+                </a>
+            </li>
+            <li class="sidebar-menu-item" data-role-required="CUSTOMER">
+                <a href="/reservations/create" class="sidebar-menu-link">
+                    <i class="bi bi-cart4"></i>Đặt bàn & Gọi món
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <small class="text-muted d-block text-center">Version 1.0.0</small>
+        </div>
+    </div>
+</body>
+
+</html>

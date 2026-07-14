@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Thống kê chi tiết', ~{::div#content})}">
+<body>
+    <div id="content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <h3 class="text-white mb-4"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Biểu đồ thống kê chi tiết</h3>
+                    <hr class="border-secondary mb-4">
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card bg-dark border-secondary p-4 text-center">
+                                <h6 class="text-secondary small mb-4">TỶ LỆ KHÁCH HÀNG THÀNH VIÊN</h6>
+                                <div class="mx-auto mb-4" style="width: 150px; height: 150px; border-radius: 50%; border: 15px solid var(--bs-primary); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white;">
+                                    <strong>74%</strong>
+                                </div>
+                                <p class="text-secondary small m-0">Tỷ lệ khách hàng đăng ký tích điểm thành viên khi thanh toán hóa đơn.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-dark border-secondary p-4 text-center">
+                                <h6 class="text-secondary small mb-4">TỶ LỆ BÀN ĂN ĐANG SỬ DỤNG TRUNG BÌNH</h6>
+                                <div class="mx-auto mb-4" style="width: 150px; height: 150px; border-radius: 50%; border: 15px solid var(--bs-success); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white;">
+                                    <strong>68%</strong>
+                                </div>
+                                <p class="text-secondary small m-0">Công suất khai thác sử dụng bàn ăn trung bình vào các giờ cao điểm.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

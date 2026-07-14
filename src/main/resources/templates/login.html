@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header-fragment('RMS - Đăng nhập')}">
+</head>
+<body>
+    <!-- Inject login style overrides -->
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+
+    <!-- Background overlay -->
+    <div class="bg-gradient-shapes"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <!-- Branding Header -->
+            <div class="auth-brand">
+                <i class="bi bi-egg-fried me-2"></i><span>RMS</span> System
+            </div>
+            <div class="auth-subtitle">Hệ thống Quản lý Nhà hàng chuyên nghiệp</div>
+
+            <!-- Modern Segmented Tab Switcher -->
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab-btn active" id="tab-password">
+                    <i class="bi bi-shield-lock"></i>Tài khoản
+                </button>
+                <button type="button" class="auth-tab-btn" id="tab-otp">
+                    <i class="bi bi-phone"></i>Mã OTP
+                </button>
+            </div>
+
+            <!-- Username/Password Login Form -->
+            <div id="login-pass-form">
+                <form id="loginForm" class="auth-form">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Tên đăng nhập</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control form-control-glass" id="username" placeholder="Nhập tên đăng nhập...">
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Mật khẩu</label>
+                        <div class="password-toggle-container input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="password" class="form-control form-control-glass" id="password" placeholder="Nhập mật khẩu...">
+                            <button type="button" class="password-toggle-btn" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-glass mt-2 mb-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
+                    </button>
+                    
+                    <div class="text-center mt-3">
+                        <span class="text-secondary small">Chưa có tài khoản? </span>
+                        <a href="/register" class="text-primary small text-decoration-none">Đăng ký ngay</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- OTP Login Form -->
+            <div id="login-otp-form" class="auth-form d-none">
+                <!-- Step 1: Send OTP -->
+                <div id="request-otp-section">
+                    <form id="requestOtpForm">
+                        <div class="mb-3">
+                            <label for="otpIdentifier" class="form-label">Tên đăng nhập / Email / Số điện thoại</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope-at"></i></span>
+                                <input type="text" class="form-control form-control-glass" id="otpIdentifier" placeholder="Tên đăng nhập, email hoặc SĐT...">
+                            </div>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-glass mt-2">
+                            <i class="bi bi-send-fill me-2"></i>Gửi mã OTP
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Step 2: Verify OTP -->
+                <div id="verify-otp-section" class="d-none">
+                    <form id="verifyOtpForm">
+                        <p class="text-secondary small mb-3">Mã OTP đã được gửi đến <span class="text-white font-weight-bold" id="otp-target-text"></span>. Vui lòng nhập mã để tiếp tục.</p>
+                        
+                        <div class="mb-3">
+                            <label for="otpCode" class="form-label">Mã xác thực OTP (6 chữ số)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                <input type="text" class="form-control form-control-glass text-center letter-spacing-lg font-weight-bold" id="otpCode" maxlength="6" placeholder="******">
+                            </div>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <span class="text-secondary small">Hết hiệu lực sau: <span class="text-primary font-weight-bold" id="otp-timer">05:00</span></span>
+                            <button type="button" class="btn btn-link p-0 text-decoration-none small" id="resendOtpBtn" disabled>Gửi lại OTP</button>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-glass">
+                            <i class="bi bi-check-lg me-2"></i>Xác nhận đăng nhập
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Page Scripts -->
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/login.js}"></script>
+</body>
+</html>

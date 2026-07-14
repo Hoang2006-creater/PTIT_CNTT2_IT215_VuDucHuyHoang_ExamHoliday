@@ -1,0 +1,90 @@
+@import url('login.css');
+
+/* Register Page Specific overrides/additions */
+.auth-card {
+    max-width: 500px;
+    padding: 35px 30px;
+}
+
+/* Password Strength Meter */
+.password-strength-container {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.password-strength-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.password-strength-text {
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.password-strength-bars {
+    display: flex;
+    gap: 4px;
+    height: 4px;
+    width: 100%;
+}
+
+.strength-segment {
+    flex: 1;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Strength Colors */
+.strength-weak {
+    background-color: var(--error-color) !important;
+    box-shadow: 0 0 6px rgba(231, 76, 60, 0.4);
+}
+
+.strength-medium {
+    background-color: var(--warning-color) !important;
+    box-shadow: 0 0 6px rgba(241, 196, 15, 0.4);
+}
+
+.strength-strong {
+    background-color: var(--success-color) !important;
+    box-shadow: 0 0 6px rgba(46, 204, 113, 0.4);
+}
+
+/* Validation requirements list */
+.validation-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+}
+
+.validation-item {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+}
+
+.validation-item.valid {
+    color: var(--success-color);
+}
+
+.validation-item.invalid {
+    color: var(--error-color);
+}
+
+.validation-item i {
+    font-size: 12px;
+}
