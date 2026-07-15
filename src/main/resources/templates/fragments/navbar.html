@@ -6,28 +6,84 @@
         <button id="toggleSidebar" class="sidebar-toggle-btn me-3">
             <i class="bi bi-list"></i>
         </button>
-        <h5 class="m-0 font-weight-bold text-white d-none d-sm-block">Restaurant Management System</h5>
+        <i class="bi bi-egg-fried text-primary me-2 fs-4 d-none d-sm-inline-block"></i>
+        <h5 class="m-0 font-weight-bold text-white d-none d-sm-block" style="font-family: 'Poppins', sans-serif;">RMS Restaurant</h5>
+        
+        <!-- Search bar -->
+        <div class="search-bar-container d-none d-md-block ms-4">
+            <input type="text" class="form-control search-input" placeholder="Tìm kiếm nhanh...">
+            <button class="search-icon-btn"><i class="bi bi-search"></i></button>
+        </div>
     </div>
     
-    <div class="dropdown">
-        <button class="btn btn-outline-light dropdown-toggle border-0" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-user-circle me-1"></i>
-            <span id="profile-name" class="font-weight-bold">Loading...</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userMenu">
-            <li>
-                <div class="px-3 py-2">
-                    <div id="profile-email" class="small text-muted text-truncate" style="max-width: 200px;">email@example.com</div>
-                    <span id="role-badge" class="badge bg-primary mt-1">Role</span>
-                </div>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <a class="dropdown-item text-danger" href="#" id="logoutBtn">
-                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                </a>
-            </li>
-        </ul>
+    <div class="d-flex align-items-center">
+        <!-- Notification Dropdown -->
+        <div class="dropdown me-3">
+            <button class="nav-icon-btn" type="button" id="notificationMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell-fill"></i>
+                <span class="badge nav-badge">4</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark p-0" aria-labelledby="notificationMenu" style="width: 290px; border-radius: 12px; overflow: hidden;">
+                <li><div class="px-3 py-2 font-weight-bold border-bottom border-secondary small text-white bg-dark">HỘP THƯ THÔNG BÁO</div></li>
+                <li>
+                    <a class="dropdown-item py-2 border-bottom border-secondary" href="#" style="white-space: normal;">
+                        <div class="text-success font-weight-bold" style="font-size: 13px;"><i class="bi bi-check-circle-fill me-2"></i>Món ăn bàn 5 hoàn thành</div>
+                        <div class="text-muted" style="font-size: 10px;">1 phút trước</div>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 border-bottom border-secondary" href="#" style="white-space: normal;">
+                        <div class="text-info font-weight-bold" style="font-size: 13px;"><i class="bi bi-calendar-event-fill me-2"></i>Khách đặt bàn mới lúc 19:00</div>
+                        <div class="text-muted" style="font-size: 10px;">5 phút trước</div>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 border-bottom border-secondary" href="#" style="white-space: normal;">
+                        <div class="text-warning font-weight-bold" style="font-size: 13px;"><i class="bi bi-gift-fill me-2"></i>Khuyến mãi Lễ sắp kết thúc</div>
+                        <div class="text-muted" style="font-size: 10px;">15 phút trước</div>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2" href="#" style="white-space: normal;">
+                        <div class="text-danger font-weight-bold" style="font-size: 13px;"><i class="bi-exclamation-triangle-fill me-2"></i>Thanh toán bàn 2 thất bại</div>
+                        <div class="text-muted" style="font-size: 10px;">30 phút trước</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- User Profile Dropdown -->
+        <div class="dropdown">
+            <button class="user-dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=256&auto=format&fit=crop" class="admin-avatar" alt="Avatar">
+                <span id="profile-name" class="font-weight-bold text-white d-none d-md-inline">Admin</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userMenu" style="border-radius: 12px;">
+                <li>
+                    <div class="px-3 py-2">
+                        <div id="profile-email" class="small text-muted text-truncate" style="max-width: 180px;">admin@restaurant.com</div>
+                        <span id="role-badge" class="badge bg-danger mt-1">ADMIN</span>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="/profile">
+                        <i class="bi bi-person-fill me-2"></i>Hồ sơ cá nhân
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/change-password">
+                        <i class="bi bi-shield-lock-fill"></i>Đổi mật khẩu
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="#" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
 </body>

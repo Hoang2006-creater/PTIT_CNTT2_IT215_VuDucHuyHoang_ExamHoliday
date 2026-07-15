@@ -1,0 +1,98 @@
+/* Sidebar styling */
+.sidebar {
+    background: linear-gradient(180deg, #182235 0%, #0c121e 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-brand {
+    background: rgba(139, 30, 63, 0.15);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-brand i {
+    color: #E67E22 !important;
+    font-size: 1.4rem;
+}
+
+.sidebar-menu-link {
+    font-family: 'Inter', sans-serif;
+    color: #94a3b8 !important;
+    font-weight: 500;
+    padding: 12px 20px !important;
+    margin: 4px 10px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.sidebar-menu-link i {
+    font-size: 1.1rem;
+    color: #64748b;
+    transition: all 0.2s ease;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-menu-link:hover {
+    background: rgba(230, 126, 34, 0.1) !important;
+    color: white !important;
+}
+
+.sidebar-menu-link:hover i {
+    color: #E67E22 !important;
+}
+
+/* Active Highlight */
+.sidebar-menu-link.active {
+    background: linear-gradient(135deg, #8B1E3F, #b1254f) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(139, 30, 63, 0.3);
+}
+
+.sidebar-menu-link.active i {
+    color: #E67E22 !important;
+}
+
+/* Collapse functionality classes */
+.sidebar.collapsed {
+    width: 80px !important;
+}
+
+.sidebar.collapsed .sidebar-brand span,
+.sidebar.collapsed .sidebar-menu-link span,
+.sidebar.collapsed .sidebar-footer small {
+    display: none !important;
+}
+
+.sidebar.collapsed .sidebar-brand {
+    justify-content: center;
+    padding: 20px 10px;
+}
+
+.sidebar.collapsed .sidebar-menu-link {
+    justify-content: center;
+    padding: 12px 10px !important;
+    margin: 4px 8px;
+}
+
+.sidebar.collapsed .sidebar-menu-link i {
+    margin-right: 0;
+}
+
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}

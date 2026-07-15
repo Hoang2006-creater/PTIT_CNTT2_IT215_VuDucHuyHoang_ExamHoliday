@@ -5,6 +5,8 @@ import com.re.examholiday.model.enumeration.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Payment extends BaseEntity {
 
     @Id
@@ -56,4 +59,9 @@ public class Payment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
     private PaymentStatus status = PaymentStatus.SUCCESS;
+
+    @JsonProperty("orderId")
+    public Long getOrderId() {
+        return order != null ? order.getId() : null;
+    }
 }

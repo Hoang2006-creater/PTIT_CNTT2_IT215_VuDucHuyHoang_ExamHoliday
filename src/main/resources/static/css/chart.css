@@ -1,0 +1,34 @@
+/* Chart layout & wrapper */
+.chart-container-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    padding: 10px;
+}
+
+.chart-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.chart-filter-select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: white;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.chart-filter-select:focus {
+    border-color: #E67E22;
+}
+
+.chart-filter-select option {
+    background-color: #0f172a;
+    color: white;
+}

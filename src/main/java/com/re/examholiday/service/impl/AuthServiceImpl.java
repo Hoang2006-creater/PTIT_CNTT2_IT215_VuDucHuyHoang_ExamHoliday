@@ -277,6 +277,7 @@ public class AuthServiceImpl implements AuthService {
     // ==================== GET PROFILE ====================
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<UserProfileResponse> getProfile(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AuthenticationException("Người dùng không tồn tại."));

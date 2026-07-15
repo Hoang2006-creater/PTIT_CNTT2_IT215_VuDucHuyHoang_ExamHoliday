@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -54,5 +55,6 @@ public class Promotion {
 
     @NotNull
     @Column(name = "is_active", nullable = false)
+    @JsonProperty("active")
     private Boolean isActive = true;
 }

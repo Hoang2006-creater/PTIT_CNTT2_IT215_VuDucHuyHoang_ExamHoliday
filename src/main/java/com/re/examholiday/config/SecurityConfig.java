@@ -19,6 +19,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.http.HttpMethod;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -90,18 +92,26 @@ public class SecurityConfig {
                         // Admin & Manager
                         .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "MANAGER")
 
-                        // Manager only
+                        // Allow GET requests for lists to all authenticated users
+                        .requestMatchers(HttpMethod.GET, "/api/menu-items/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/promotions/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/payments/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/kitchen/**").authenticated()
+
+                        // Manager only for modifying
                         .requestMatchers("/api/menu-items/**").hasRole("MANAGER")
                         .requestMatchers("/api/categories/**").hasRole("MANAGER")
                         .requestMatchers("/api/promotions/**").hasRole("MANAGER")
 
-                        // Cashier & Admin
+                        // Cashier & Admin for modifying
                         .requestMatchers("/api/payments/**").hasAnyRole("CASHIER", "ADMIN")
 
-                        // Waitstaff & Customer - Orders
+                        // Waitstaff & Customer - Orders modifying
                         .requestMatchers("/api/orders/**").hasAnyRole("WAITSTAFF", "CUSTOMER", "ADMIN", "MANAGER")
 
-                        // Chef - Kitchen
+                        // Chef - Kitchen modifying
                         .requestMatchers("/api/kitchen/**").hasAnyRole("CHEF", "ADMIN")
 
                         // All authenticated users

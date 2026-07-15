@@ -13,4 +13,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByReservationTimeBetween(LocalDateTime start, LocalDateTime end);
     List<Reservation> findByStatus(ReservationStatus status);
     List<Reservation> findByCustomerPhone(String phone);
+    boolean existsByCustomerId(Long customerId);
 }

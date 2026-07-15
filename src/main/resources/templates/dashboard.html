@@ -2,142 +2,365 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Dashboard', ~{::div#content})}">
 <body>
     <div id="content">
-        <!-- Welcome Card -->
+        <!-- Top header section -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+                <div class="glass-card p-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="border-left: 4px solid #8B1E3F !important;">
                     <div>
-                        <h2 class="text-white mb-2">Xin chào, <span id="welcome-user" class="text-primary font-weight-bold">RMS User</span>!</h2>
-                        <p class="text-secondary m-0">Chào mừng bạn trở lại hệ thống quản lý nhà hàng. Chọn các chức năng từ Sidebar hoặc thẻ bên dưới để bắt đầu ca làm việc.</p>
+                        <h2 class="text-white mb-2" style="font-family: 'Poppins', sans-serif;">Xin chào, <span id="welcome-user" class="text-primary font-weight-bold">RMS Admin</span>!</h2>
+                        <p class="text-secondary m-0">Tổng quan hoạt động kinh doanh nhà hàng. Hôm nay là: <strong id="today-date-str" class="text-white">--/--/----</strong></p>
                     </div>
-                    <div class="d-none d-md-block">
-                        <i class="bi bi-person-workspace text-primary-hover" style="font-size: 64px;"></i>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger p-2" style="font-size: 13px;"><i class="bi bi-clock-fill me-1"></i>Hệ thống POS Hoạt động</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Role Badge Info -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-dark border-secondary">
-                    <div class="card-body">
-                        <h6 class="text-white mb-2"><i class="bi bi-info-circle-fill text-primary me-2"></i>Quyền hạn hiện tại</h6>
-                        <p class="text-secondary small m-0">Menu bên trái đã tự động cấu hình dựa trên vai trò làm việc của bạn. Nếu cần thay đổi quyền hoặc gặp sự cố truy cập, vui lòng liên hệ <strong>Quản trị viên (Admin)</strong>.</p>
+        <!-- KPI Cards Row 1 -->
+        <div class="row g-3 mb-3">
+            <!-- Total Revenue -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-burgundy">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Tổng doanh thu</span>
+                        <div class="kpi-val" id="kpi-total-revenue">0đ</div>
+                        <div class="kpi-change up"><i class="bi bi-graph-up-arrow"></i> Lũy kế</div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dashboard Stat Cards (Shown for Admin/Manager) -->
-        <div class="row g-4 mb-4">
-            <!-- Stat 1 -->
-            <div class="col-12 col-sm-6 col-xl-3" data-role-required="MANAGER">
-                <div class="glass-card stat-card">
-                    <div>
-                        <span class="text-secondary small">Doanh thu ngày</span>
-                        <div class="stat-value text-success">15,240,000đ</div>
-                    </div>
-                    <div class="stat-icon">
+                    <div class="kpi-icon-container">
                         <i class="bi bi-cash-stack"></i>
                     </div>
                 </div>
             </div>
-            <!-- Stat 2 -->
-            <div class="col-12 col-sm-6 col-xl-3" data-role-required="MANAGER">
-                <div class="glass-card stat-card">
-                    <div>
-                        <span class="text-secondary small">Đơn hàng mới</span>
-                        <div class="stat-value text-white">42 đơn</div>
+            <!-- Total Orders -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-success">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Tổng đơn hàng</span>
+                        <div class="kpi-val" id="kpi-total-orders">0</div>
+                        <div class="kpi-change up"><i class="bi bi-cart-check-fill"></i> Hoàn thành</div>
                     </div>
-                    <div class="stat-icon">
+                    <div class="kpi-icon-container">
                         <i class="bi bi-receipt"></i>
                     </div>
                 </div>
             </div>
-            <!-- Stat 3 -->
-            <div class="col-12 col-sm-6 col-xl-3" data-role-required="WAITSTAFF">
-                <div class="glass-card stat-card">
-                    <div>
-                        <span class="text-secondary small">Bàn đang sử dụng</span>
-                        <div class="stat-value text-warning">8 / 20 bàn</div>
+            <!-- Total Customers -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-info">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Tổng khách hàng</span>
+                        <div class="kpi-val" id="kpi-total-customers">0</div>
+                        <div class="kpi-change up"><i class="bi bi-people-fill"></i> Thành viên</div>
                     </div>
-                    <div class="stat-icon">
-                        <i class="bi bi-grid"></i>
+                    <div class="kpi-icon-container">
+                        <i class="bi bi-person-badge-fill"></i>
                     </div>
                 </div>
             </div>
-            <!-- Stat 4 -->
-            <div class="col-12 col-sm-6 col-xl-3" data-role-required="CHEF">
-                <div class="glass-card stat-card">
-                    <div>
-                        <span class="text-secondary small">Món cần chế biến</span>
-                        <div class="stat-value text-danger">5 món</div>
+            <!-- Total Employees -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-warning">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Tổng nhân viên</span>
+                        <div class="kpi-val" id="kpi-total-employees">0</div>
+                        <div class="kpi-change neutral"><i class="bi bi-person-check-fill"></i> Đang làm việc</div>
                     </div>
-                    <div class="stat-icon">
-                        <i class="bi bi-clock-history"></i>
+                    <div class="kpi-icon-container">
+                        <i class="bi bi-people"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Role Quick Access Panels -->
-        <h4 class="text-white mb-3">Truy cập nhanh chức năng</h4>
-        <div class="row g-4">
-            <!-- Admin Panel -->
-            <div class="col-12 col-md-6 col-lg-4" data-role-required="ADMIN">
+        <!-- KPI Cards Row 2 -->
+        <div class="row g-3 mb-4">
+            <!-- Table serving -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-danger">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Bàn đang phục vụ</span>
+                        <div class="kpi-val" id="kpi-serving-tables">5 / 12</div>
+                        <span class="badge bg-secondary-glass mt-1" style="font-size: 10px; width: fit-content; background: rgba(255, 255, 255, 0.1);">API placeholder</span>
+                    </div>
+                    <div class="kpi-icon-container">
+                        <i class="bi bi-grid-3x3-gap-fill text-danger"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Empty Tables -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-success">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Bàn trống khả dụng</span>
+                        <div class="kpi-val" id="kpi-empty-tables">7 / 12</div>
+                        <span class="badge bg-secondary-glass mt-1" style="font-size: 10px; width: fit-content; background: rgba(255, 255, 255, 0.1);">API placeholder</span>
+                    </div>
+                    <div class="kpi-icon-container">
+                        <i class="bi bi-grid-3x3-gap text-success"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Orders in kitchen -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-warning">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Đơn chờ chế biến</span>
+                        <div class="kpi-val" id="kpi-kitchen-pending">3 món</div>
+                        <span class="badge bg-secondary-glass mt-1" style="font-size: 10px; width: fit-content; background: rgba(255, 255, 255, 0.1);">API placeholder</span>
+                    </div>
+                    <div class="kpi-icon-container">
+                        <i class="bi bi-fire text-warning"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Today Bills Revenue -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="glass-card kpi-card kpi-burgundy">
+                    <div class="kpi-info-wrapper">
+                        <span class="kpi-label">Doanh thu hôm nay</span>
+                        <div class="kpi-val" id="kpi-today-revenue">0đ</div>
+                        <div class="kpi-change up" id="kpi-today-order-count"><i class="bi bi-cart"></i> 0 đơn mới</div>
+                    </div>
+                    <div class="kpi-icon-container">
+                        <i class="bi bi-calendar-check-fill text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Metrics row -->
+        <div class="row mb-4 g-4">
+            <!-- Line Chart: Revenue over time -->
+            <div class="col-12 col-lg-8">
                 <div class="glass-card p-4 h-100">
-                    <h5 class="text-white mb-3"><i class="bi bi-people-fill text-primary me-2"></i>Nhân viên</h5>
-                    <p class="text-secondary small mb-4">Quản lý tài khoản đăng nhập của nhân viên nhà hàng, tạo mới và phân quyền vai trò làm việc.</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Mở quản lý</a>
+                    <div class="chart-card-header">
+                        <h5 class="text-white m-0" style="font-family: 'Poppins', sans-serif;"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Biểu đồ doanh thu nhà hàng</h5>
+                        <select class="chart-filter-select" id="revenue-chart-filter">
+                            <option value="day">Thống kê 30 ngày gần đây</option>
+                            <option value="month">Thống kê theo tháng</option>
+                            <option value="year">Thống kê theo năm</option>
+                        </select>
+                    </div>
+                    <div class="chart-container-wrapper">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <!-- Manager Menu Panel -->
-            <div class="col-12 col-md-6 col-lg-4" data-role-required="MANAGER">
+            <!-- Best selling items & Loyal customers list -->
+            <div class="col-12 col-lg-4">
                 <div class="glass-card p-4 h-100">
-                    <h5 class="text-white mb-3"><i class="bi bi-journals text-primary me-2"></i>Thực đơn</h5>
-                    <p class="text-secondary small mb-4">Thêm mới món ăn, chỉnh sửa giá bán, cập nhật hình ảnh đại diện và trạng thái còn/hết hàng.</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Mở quản lý món</a>
+                    <h5 class="text-white mb-3" style="font-family: 'Poppins', sans-serif;"><i class="bi bi-trophy-fill text-warning me-2"></i>Món ăn bán chạy nhất</h5>
+                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                        <table class="table table-dark table-striped table-hover m-0" style="font-size: 13px;">
+                            <thead>
+                                <tr>
+                                    <th>Tên món</th>
+                                    <th>Đơn giá</th>
+                                    <th class="text-end">Đã bán</th>
+                                </tr>
+                            </thead>
+                            <tbody id="best-selling-items-tbody">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Đang tải dữ liệu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick actions and Activities row -->
+        <div class="row mb-4 g-4">
+            <!-- Quick Actions -->
+            <div class="col-12 col-md-6 col-lg-5">
+                <div class="glass-card p-4 h-100">
+                    <h5 class="text-white mb-3" style="font-family: 'Poppins', sans-serif;"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Thao tác quản lý nhanh</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="/employees" class="quick-action-btn">
+                                <i class="bi bi-person-plus-fill"></i>
+                                <span class="quick-action-title">Thêm nhân viên</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/menu" class="quick-action-btn">
+                                <i class="bi bi-plus-circle-fill"></i>
+                                <span class="quick-action-title">Thêm món ăn</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/reservations" class="quick-action-btn">
+                                <i class="bi bi-calendar-plus-fill"></i>
+                                <span class="quick-action-title">Đặt bàn</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/payments" class="quick-action-btn">
+                                <i class="bi bi-wallet2"></i>
+                                <span class="quick-action-title">Tạo hóa đơn</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/customers" class="quick-action-btn">
+                                <i class="bi bi-people-fill"></i>
+                                <span class="quick-action-title">Khách hàng</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/menu" class="quick-action-btn">
+                                <i class="bi bi-journals"></i>
+                                <span class="quick-action-title">Xem thực đơn</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Cashier Panel -->
-            <div class="col-12 col-md-6 col-lg-4" data-role-required="CASHIER">
+            <!-- Recent Activities -->
+            <div class="col-12 col-md-6 col-lg-4">
                 <div class="glass-card p-4 h-100">
-                    <h5 class="text-white mb-3"><i class="bi bi-wallet2 text-primary me-2"></i>Thanh toán</h5>
-                    <p class="text-secondary small mb-4">Theo dõi các đơn hàng đang chờ thanh toán, áp dụng mã giảm giá và xác nhận giao dịch.</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Mở quầy POS</a>
+                    <h5 class="text-white mb-3" style="font-family: 'Poppins', sans-serif;"><i class="bi bi-clock-history text-info me-2"></i>Nhân sự & Giao dịch mới nhất</h5>
+                    <div class="d-flex flex-column gap-2" id="recent-activities-list">
+                        <!-- Activity 1 -->
+                        <div class="notif-item">
+                            <div class="notif-icon-wrapper notif-icon-success">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                            <div class="notif-content">
+                                <p class="notif-text">Đơn hàng mới hoàn tất thanh toán</p>
+                                <span class="notif-time">Thanh toán hóa đơn thành công</span>
+                            </div>
+                        </div>
+                        <!-- Activity 2 -->
+                        <div class="notif-item">
+                            <div class="notif-icon-wrapper notif-icon-info">
+                                <i class="bi bi-person-plus"></i>
+                            </div>
+                            <div class="notif-content">
+                                <p class="notif-text">Nhân viên phục vụ mới đăng nhập</p>
+                                <span class="notif-time">Hệ thống ghi nhận ca trực mới</span>
+                            </div>
+                        </div>
+                        <!-- Activity 3 -->
+                        <div class="notif-item">
+                            <div class="notif-icon-wrapper notif-icon-warning">
+                                <i class="bi bi-credit-card-2-front"></i>
+                            </div>
+                            <div class="notif-content">
+                                <p class="notif-text">Khách hàng tích điểm thành viên</p>
+                                <span class="notif-time">Cộng điểm loyalty thành công</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Waitstaff Panel -->
-            <div class="col-12 col-md-6 col-lg-4" data-role-required="WAITSTAFF">
+            <!-- Top Customers -->
+            <div class="col-12 col-md-12 col-lg-3">
                 <div class="glass-card p-4 h-100">
-                    <h5 class="text-white mb-3"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Gọi món</h5>
-                    <p class="text-secondary small mb-4">Mở bàn mới cho khách hàng, ghi nhận các món ăn yêu cầu, ghi chú đặc biệt và chuyển xuống bếp.</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Xem sơ đồ bàn</a>
+                    <h5 class="text-white mb-3" style="font-family: 'Poppins', sans-serif;"><i class="bi bi-star-fill text-warning me-2"></i>Khách hàng thân thiết</h5>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-hover m-0" style="font-size: 13px;">
+                            <thead>
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th class="text-end">Tích lũy</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loyal-customers-tbody">
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">Đang tải dữ liệu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Chef Panel -->
-            <div class="col-12 col-md-6 col-lg-4" data-role-required="CHEF">
-                <div class="glass-card p-4 h-100">
-                    <h5 class="text-white mb-3"><i class="bi bi-fire text-primary me-2"></i>Nhà bếp</h5>
-                    <p class="text-secondary small mb-4">Tiếp nhận thông tin gọi món thời gian thực từ nhân viên phục vụ, chế biến và cập nhật trạng thái món.</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Mở màn hình bếp</a>
-                </div>
-            </div>
-
-            <!-- Customer Panel -->
-            <div class="col-12 col-md-6 col-lg-4" data-role-required="CUSTOMER">
-                <div class="glass-card p-4 h-100">
-                    <h5 class="text-white mb-3"><i class="bi bi-cart4 text-primary me-2"></i>Dành cho khách</h5>
-                    <p class="text-secondary small mb-4">Đặt bàn ăn trước khung giờ đến, đặt món tại bàn qua mã QR và gửi nhận xét đánh giá dịch vụ.</p>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Đặt bàn ngay</a>
+        <!-- Table Status Map Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+                        <div>
+                            <h5 class="text-white m-0" style="font-family: 'Poppins', sans-serif;"><i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>Sơ đồ trạng thái bàn ăn (Trực quan)</h5>
+                            <p class="text-secondary small m-0 mt-1">Trạng thái thời gian thực của bàn ăn trong nhà hàng. <span class="badge bg-secondary-glass" style="font-size: 10px; background: rgba(255, 255, 255, 0.1);">API placeholder</span></p>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 flex-wrap small text-secondary">
+                            <div class="d-flex align-items-center gap-1"><span class="table-badge-dot d-inline-block position-relative top-0 right-0" style="background-color: #10b981;"></span> Trống (🟢)</div>
+                            <div class="d-flex align-items-center gap-1"><span class="table-badge-dot d-inline-block position-relative top-0 right-0" style="background-color: #f59e0b;"></span> Đã đặt (🟡)</div>
+                            <div class="d-flex align-items-center gap-1"><span class="table-badge-dot d-inline-block position-relative top-0 right-0" style="background-color: #ef4444;"></span> Đang dùng (🔴)</div>
+                            <div class="d-flex align-items-center gap-1"><span class="table-badge-dot d-inline-block position-relative top-0 right-0" style="background-color: #94a3b8;"></span> Đang dọn (⚪)</div>
+                        </div>
+                    </div>
+                    <div class="table-grid">
+                        <!-- Table Card 1 -->
+                        <div class="table-status-card status-empty">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 01</div>
+                            <div class="table-capacity">4 Chỗ</div>
+                            <div class="table-time">Trống</div>
+                        </div>
+                        <!-- Table Card 2 -->
+                        <div class="table-status-card status-serving">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 02</div>
+                            <div class="table-capacity">2 Chỗ</div>
+                            <div class="table-time">45 phút</div>
+                        </div>
+                        <!-- Table Card 3 -->
+                        <div class="table-status-card status-reserved">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 03</div>
+                            <div class="table-capacity">6 Chỗ</div>
+                            <div class="table-time">19:00</div>
+                        </div>
+                        <!-- Table Card 4 -->
+                        <div class="table-status-card status-empty">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 04</div>
+                            <div class="table-capacity">4 Chỗ</div>
+                            <div class="table-time">Trống</div>
+                        </div>
+                        <!-- Table Card 5 -->
+                        <div class="table-status-card status-serving">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 05</div>
+                            <div class="table-capacity">8 Chỗ</div>
+                            <div class="table-time">120 phút</div>
+                        </div>
+                        <!-- Table Card 6 -->
+                        <div class="table-status-card status-cleaning">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 06</div>
+                            <div class="table-capacity">4 Chỗ</div>
+                            <div class="table-time">Đang dọn</div>
+                        </div>
+                        <!-- Table Card 7 -->
+                        <div class="table-status-card status-empty">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 07</div>
+                            <div class="table-capacity">2 Chỗ</div>
+                            <div class="table-time">Trống</div>
+                        </div>
+                        <!-- Table Card 8 -->
+                        <div class="table-status-card status-empty">
+                            <span class="table-badge-dot"></span>
+                            <div class="table-num">Bàn 08</div>
+                            <div class="table-capacity">4 Chỗ</div>
+                            <div class="table-time">Trống</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Chart.js Libraries and JS Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

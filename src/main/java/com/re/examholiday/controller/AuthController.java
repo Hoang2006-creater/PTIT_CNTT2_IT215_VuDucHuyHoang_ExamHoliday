@@ -1,5 +1,6 @@
 package com.re.examholiday.controller;
 
+import com.re.examholiday.dto.request.ChangePasswordRequest;
 import com.re.examholiday.dto.request.LoginRequest;
 import com.re.examholiday.dto.request.OtpRequestDto;
 import com.re.examholiday.dto.request.OtpVerifyRequest;
@@ -8,6 +9,7 @@ import com.re.examholiday.dto.response.ApiResponse;
 import com.re.examholiday.dto.response.LoginResponse;
 import com.re.examholiday.dto.response.UserProfileResponse;
 import com.re.examholiday.service.AuthService;
+import com.re.examholiday.service.UserManageService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserManageService userManageService;
 
     /**
      * POST /api/auth/login - Đăng nhập bằng Username/Password
@@ -80,6 +83,21 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
             Authentication authentication) {
         ApiResponse<UserProfileResponse> response = authService.getProfile(authentication.getName());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * POST /api/auth/change-password - Đổi mật khẩu tài khoản hiện tại
+     */
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        ApiResponse<Void> response = userManageService.changePassword(
+                authentication.getName(), request);
+        if (!response.isSuccess()) {
+            return ResponseEntity.badRequest().body(response);
+        }
         return ResponseEntity.ok(response);
     }
 }
