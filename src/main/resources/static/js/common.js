@@ -116,7 +116,11 @@ async function customFetch(url, options = {}) {
         options.headers['Authorization'] = `Bearer ${token}`;
     }
     
-    options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+    if (options.body && options.body instanceof FormData) {
+        // Let browser set the Content-Type with boundary automatically
+    } else {
+        options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+    }
 
     try {
         let response = await fetch(url, options);

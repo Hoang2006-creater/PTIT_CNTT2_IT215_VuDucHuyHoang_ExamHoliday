@@ -47,6 +47,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
+    // Cloudinary SDK
+    dependencies {
+        implementation 'com.cloudinary:cloudinary-http44:1.39.0'
+    }
+
 }
 
 tasks.named('test') {

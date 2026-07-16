@@ -2,12 +2,64 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout-main('RMS - Quản lý thực đơn', ~{::div#content})}">
 <body>
     <div id="content">
+        <style>
+            .modal-content-glass {
+                background: rgba(15, 23, 42, 0.9) !important;
+                backdrop-filter: blur(24px) !important;
+                -webkit-backdrop-filter: blur(24px) !important;
+                border: 1px solid var(--surface-border) !important;
+                border-radius: 16px !important;
+                color: var(--text-primary) !important;
+            }
+            .modal-header {
+                border-bottom: 1px solid var(--surface-border) !important;
+            }
+            .modal-footer {
+                border-top: 1px solid var(--surface-border) !important;
+            }
+            .image-preview-container {
+                width: 100%;
+                height: 180px;
+                border: 2px dashed var(--surface-border);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                position: relative;
+                background: rgba(15, 23, 42, 0.4);
+                margin-top: 8px;
+            }
+            .image-preview-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+            .image-preview-placeholder {
+                text-align: center;
+                color: var(--text-secondary);
+                font-size: 0.85rem;
+                padding: 15px;
+            }
+            .btn-xs {
+                padding: 0.25rem 0.4rem;
+                font-size: 0.75rem;
+                border-radius: 0.25rem;
+            }
+            .form-label-required::after {
+                content: " *";
+                color: var(--danger);
+            }
+        </style>
+
         <div class="row mb-4">
             <div class="col-12">
                 <div class="glass-card p-4">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <h3 class="text-white m-0"><i class="bi bi-journals text-primary me-2"></i>Quản lý thực đơn</h3>
-                        <a href="/categories" class="btn btn-outline-primary btn-sm"><i class="bi bi-tags me-2"></i>Quản lý danh mục</a>
+                        <div class="d-flex gap-2" id="action-buttons-container">
+                            <a href="/categories" class="btn btn-outline-primary btn-sm"><i class="bi bi-tags me-2"></i>Quản lý danh mục</a>
+                        </div>
                     </div>
                     
                     <hr class="border-secondary mb-4">
@@ -16,16 +68,18 @@
                         <table class="table table-dark table-hover table-striped align-middle">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th style="width: 80px;">ID</th>
+                                    <th style="width: 100px;">Hình ảnh</th>
                                     <th>Tên món ăn</th>
                                     <th>Danh mục</th>
                                     <th>Đơn giá</th>
                                     <th>Còn hàng</th>
+                                    <th class="text-end" style="width: 150px;">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody id="menu-table-body">
                                 <tr>
-                                    <td colspan="5" class="text-center text-secondary py-4">Đang tải danh sách thực đơn...</td>
+                                    <td colspan="7" class="text-center text-secondary py-4">Đang tải danh sách thực đơn...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -34,35 +88,497 @@
             </div>
         </div>
 
+        <!-- ==================== DETAIL MODAL ==================== -->
+        <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-content-glass">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-white"><i class="bi bi-info-circle text-info me-2"></i>Chi tiết món ăn</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-4" id="detailImageContainer">
+                            <!-- Image will be injected -->
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-secondary small d-block">Tên món ăn</label>
+                            <h4 class="text-white m-0" id="detailName"></h4>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="text-secondary small d-block">Danh mục</label>
+                                <span class="badge bg-secondary" id="detailCategory" style="font-size: 0.9rem;"></span>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-secondary small d-block">Đơn giá</label>
+                                <h5 class="text-success font-weight-bold m-0" id="detailPrice"></h5>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-secondary small d-block">Trạng thái phục vụ</label>
+                            <span id="detailAvailable"></span>
+                        </div>
+                        <div class="mb-0">
+                            <label class="text-secondary small d-block">Mô tả món ăn</label>
+                            <p class="text-light m-0" id="detailDescription" style="white-space: pre-wrap;"></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CREATE MODAL ==================== -->
+        <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-content-glass">
+                    <form id="createForm" onsubmit="saveCreateItem(event)">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-white"><i class="bi bi-plus-circle text-primary me-2"></i>Thêm món ăn mới</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="createName" class="form-label form-label-required text-white-50 small">Tên món ăn</label>
+                                <input type="text" class="form-control form-control-glass form-control-sm" id="createName" required maxlength="150" placeholder="Nhập tên món ăn...">
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label for="createCategory" class="form-label form-label-required text-white-50 small">Danh mục</label>
+                                    <select class="form-select form-control-glass form-control-sm text-white" id="createCategory" required>
+                                        <option value="" disabled selected>Đang tải...</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label for="createPrice" class="form-label form-label-required text-white-50 small">Đơn giá (đ)</label>
+                                    <input type="number" class="form-control form-control-glass form-control-sm" id="createPrice" required min="0" placeholder="Ví dụ: 50000">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="createAvailable" checked>
+                                    <label class="form-check-label text-white small" for="createAvailable">Còn hàng / Sẵn sàng phục vụ</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="createDescription" class="form-label text-white-50 small">Mô tả món ăn</label>
+                                <textarea class="form-control form-control-glass form-control-sm" id="createDescription" rows="3" placeholder="Mô tả nguyên liệu, hương vị..."></textarea>
+                            </div>
+                            <div class="mb-0">
+                                <label for="createImage" class="form-label text-white-50 small">Hình ảnh món ăn</label>
+                                <input type="file" class="form-control form-control-glass form-control-sm" id="createImage" accept=".jpg,.jpeg,.png,.webp" onchange="handleImagePreview(this, 'createImagePreview', 'createPlaceholder')">
+                                <div class="image-preview-container" id="createImagePreview">
+                                    <div class="image-preview-placeholder" id="createPlaceholder">
+                                        <i class="bi bi-image fs-1 mb-2 d-block"></i>
+                                        <span>Chọn ảnh (JPG, JPEG, PNG, WEBP tối đa 5MB)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary-glass btn-sm px-4">Lưu món</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== EDIT MODAL ==================== -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-content-glass">
+                    <form id="editForm" onsubmit="saveEditItem(event)">
+                        <input type="hidden" id="editId">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-white"><i class="bi bi-pencil-square text-warning me-2"></i>Chỉnh sửa món ăn</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="editName" class="form-label form-label-required text-white-50 small">Tên món ăn</label>
+                                <input type="text" class="form-control form-control-glass form-control-sm" id="editName" required maxlength="150" placeholder="Nhập tên món ăn...">
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label for="editCategory" class="form-label form-label-required text-white-50 small">Danh mục</label>
+                                    <select class="form-select form-control-glass form-control-sm text-white" id="editCategory" required>
+                                        <!-- Categories will be injected -->
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label for="editPrice" class="form-label form-label-required text-white-50 small">Đơn giá (đ)</label>
+                                    <input type="number" class="form-control form-control-glass form-control-sm" id="editPrice" required min="0">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="editAvailable">
+                                    <label class="form-check-label text-white small" for="editAvailable">Còn hàng / Sẵn sàng phục vụ</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editDescription" class="form-label text-white-50 small">Mô tả món ăn</label>
+                                <textarea class="form-control form-control-glass form-control-sm" id="editDescription" rows="3" placeholder="Mô tả món ăn..."></textarea>
+                            </div>
+                            <div class="mb-0">
+                                <label for="editImage" class="form-label text-white-50 small">Đổi hình ảnh mới (Nếu có)</label>
+                                <input type="file" class="form-control form-control-glass form-control-sm" id="editImage" accept=".jpg,.jpeg,.png,.webp" onchange="handleImagePreview(this, 'editImagePreview', 'editPlaceholder')">
+                                <div class="image-preview-container" id="editImagePreview">
+                                    <!-- Current image or placeholder will be loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary-glass btn-sm px-4">Cập nhật</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <script>
+            let categoriesCached = [];
+            const userRole = localStorage.getItem('role');
+            const canEdit = userRole === 'ADMIN' || userRole === 'MANAGER';
+
             document.addEventListener('DOMContentLoaded', async () => {
+                // Initialize action button for create based on permission
+                if (canEdit) {
+                    const actionContainer = document.getElementById('action-buttons-container');
+                    const addBtn = document.createElement('button');
+                    addBtn.className = 'btn btn-primary-glass btn-sm';
+                    addBtn.innerHTML = '<i class="bi bi-plus-lg me-2"></i>Thêm món ăn';
+                    addBtn.onclick = openCreateModal;
+                    actionContainer.appendChild(addBtn);
+                }
+
+                // Load all items & categories
+                await loadCategories();
+                await loadMenuItems();
+            });
+
+            async function loadCategories() {
                 try {
-                    const response = await customFetch('/api/menu-items'); // Assuming endpoint exists
+                    const response = await customFetch('/api/categories');
                     if (response.ok) {
                         const result = await response.json();
-                        const tableBody = document.getElementById('menu-table-body');
+                        if (result.success && result.data) {
+                            categoriesCached = result.data;
+                            populateCategorySelects();
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load categories:', e);
+                }
+            }
+
+            function populateCategorySelects() {
+                const createSelect = document.getElementById('createCategory');
+                const editSelect = document.getElementById('editCategory');
+                
+                const optionsHtml = categoriesCached.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                
+                createSelect.innerHTML = '<option value="" disabled selected>Chọn danh mục...</option>' + optionsHtml;
+                editSelect.innerHTML = optionsHtml;
+            }
+
+            async function loadMenuItems() {
+                const tableBody = document.getElementById('menu-table-body');
+                try {
+                    const response = await customFetch('/api/menu-items');
+                    if (response.ok) {
+                        const result = await response.json();
                         tableBody.innerHTML = '';
                         
                         if (result.success && result.data && result.data.length > 0) {
                             result.data.forEach(item => {
                                 const tr = document.createElement('tr');
+                                
+                                const availableBadge = item.available 
+                                    ? '<span class="badge bg-success">CÒN HÀNG</span>' 
+                                    : '<span class="badge bg-danger">HẾT HÀNG</span>';
+                                
+                                const thumbnail = item.imageUrl 
+                                    ? `<img src="${item.imageUrl}" alt="${item.name}" class="rounded" style="width: 50px; height: 50px; object-fit: cover; border: 1px solid var(--surface-border);">`
+                                    : `<div class="rounded bg-secondary d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border: 1px solid var(--surface-border);"><i class="bi bi-egg-fried text-white-50"></i></div>`;
+                                    
+                                let actionButtons = `
+                                    <button class="btn btn-outline-info btn-xs" onclick="viewDetail(${item.id})" title="Xem chi tiết"><i class="bi bi-eye"></i></button>
+                                `;
+                                if (canEdit) {
+                                    actionButtons += `
+                                        <button class="btn btn-outline-warning btn-xs" onclick="openEditModal(${item.id})" title="Chỉnh sửa"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-outline-danger btn-xs" onclick="deleteItem(${item.id})" title="Xóa món ăn"><i class="bi bi-trash"></i></button>
+                                    `;
+                                }
+                                
                                 tr.innerHTML = `
                                     <td>${item.id}</td>
+                                    <td>${thumbnail}</td>
                                     <td class="text-white font-weight-bold">${item.name}</td>
                                     <td><span class="badge bg-secondary">${item.category ? item.category.name : 'Không phân loại'}</span></td>
                                     <td class="text-success font-weight-bold">${item.price.toLocaleString('vi-VN')}đ</td>
-                                    <td><span class="badge bg-${item.available ? 'success' : 'danger'}">${item.available ? 'CÒN HÀNG' : 'HẾT HÀNG'}</span></td>
+                                    <td>${availableBadge}</td>
+                                    <td class="text-end">
+                                        <div class="btn-group gap-1">
+                                            ${actionButtons}
+                                        </div>
+                                    </td>
                                 `;
                                 tableBody.appendChild(tr);
                             });
                         } else {
-                            tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">Không tìm thấy món ăn nào.</td></tr>';
+                            tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary py-4">Không tìm thấy món ăn nào.</td></tr>';
                         }
                     }
                 } catch (e) {
                     console.error('Failed to load menu list:', e);
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Có lỗi xảy ra khi lấy danh sách thực đơn.</td></tr>';
                 }
-            });
+            }
+
+            function handleImagePreview(fileInput, previewContainerId, placeholderId) {
+                const file = fileInput.files[0];
+                const previewContainer = document.getElementById(previewContainerId);
+                
+                if (file) {
+                    const validExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    if (!validExtensions.includes(extension)) {
+                        showToast('Chỉ chấp nhận các định dạng ảnh: JPG, JPEG, PNG, WEBP', 'error');
+                        fileInput.value = '';
+                        return;
+                    }
+                    
+                    if (file.size > 5 * 1024 * 1024) {
+                        showToast('Kích thước ảnh tối đa là 5MB', 'error');
+                        fileInput.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewContainer.innerHTML = `<div class="image-preview-placeholder" id="${placeholderId}"><i class="bi bi-image fs-1 mb-2 d-block"></i><span>Chọn ảnh (JPG, JPEG, PNG, WEBP tối đa 5MB)</span></div>`;
+                }
+            }
+
+            function openCreateModal() {
+                document.getElementById('createForm').reset();
+                document.getElementById('createImagePreview').innerHTML = `
+                    <div class="image-preview-placeholder" id="createPlaceholder">
+                        <i class="bi bi-image fs-1 mb-2 d-block"></i>
+                        <span>Chọn ảnh (JPG, JPEG, PNG, WEBP tối đa 5MB)</span>
+                    </div>`;
+                const myModal = new bootstrap.Modal(document.getElementById('createModal'));
+                myModal.show();
+            }
+
+            async function saveCreateItem(event) {
+                event.preventDefault();
+                const name = document.getElementById('createName').value.trim();
+                const categoryId = document.getElementById('createCategory').value;
+                const price = document.getElementById('createPrice').value;
+                const available = document.getElementById('createAvailable').checked;
+                const description = document.getElementById('createDescription').value.trim();
+                const imageFile = document.getElementById('createImage').files[0];
+                
+                if (!name || !categoryId || !price) {
+                    showToast('Vui lòng điền đầy đủ các thông tin bắt buộc', 'error');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('categoryId', categoryId);
+                formData.append('price', price);
+                formData.append('available', available);
+                formData.append('description', description);
+                if (imageFile) {
+                    formData.append('image', imageFile);
+                }
+                
+                showLoading(true);
+                try {
+                    const response = await customFetch('/api/menu-items', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast('Thêm món ăn mới thành công!');
+                        bootstrap.Modal.getInstance(document.getElementById('createModal')).hide();
+                        await loadMenuItems();
+                    } else {
+                        showToast(result.message || 'Lỗi khi thêm món ăn', 'error');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast('Đã xảy ra lỗi hệ thống', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function openEditModal(id) {
+                showLoading(true);
+                try {
+                    const response = await customFetch(`/api/menu-items/${id}`);
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        const item = result.data;
+                        document.getElementById('editId').value = item.id;
+                        document.getElementById('editName').value = item.name;
+                        document.getElementById('editCategory').value = item.category ? item.category.id : '';
+                        document.getElementById('editPrice').value = item.price;
+                        document.getElementById('editAvailable').checked = item.available;
+                        document.getElementById('editDescription').value = item.description || '';
+                        
+                        const previewContainer = document.getElementById('editImagePreview');
+                        if (item.imageUrl) {
+                            previewContainer.innerHTML = `<img src="${item.imageUrl}" class="img-fluid" style="max-height: 100%; object-fit: contain;">`;
+                        } else {
+                            previewContainer.innerHTML = `
+                                <div class="image-preview-placeholder" id="editPlaceholder">
+                                    <i class="bi bi-image fs-1 mb-2 d-block"></i>
+                                    <span>Chưa có ảnh món ăn. Chọn để tải lên ảnh mới.</span>
+                                </div>`;
+                        }
+                        
+                        document.getElementById('editImage').value = '';
+                        
+                        const myModal = new bootstrap.Modal(document.getElementById('editModal'));
+                        myModal.show();
+                    } else {
+                        showToast(result.message || 'Lỗi khi tải thông tin món ăn', 'error');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast('Lỗi hệ thống', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function saveEditItem(event) {
+                event.preventDefault();
+                const id = document.getElementById('editId').value;
+                const name = document.getElementById('editName').value.trim();
+                const categoryId = document.getElementById('editCategory').value;
+                const price = document.getElementById('editPrice').value;
+                const available = document.getElementById('editAvailable').checked;
+                const description = document.getElementById('editDescription').value.trim();
+                const imageFile = document.getElementById('editImage').files[0];
+                
+                if (!name || !categoryId || !price) {
+                    showToast('Vui lòng điền đầy đủ các thông tin bắt buộc', 'error');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('categoryId', categoryId);
+                formData.append('price', price);
+                formData.append('available', available);
+                formData.append('description', description);
+                if (imageFile) {
+                    formData.append('image', imageFile);
+                }
+                
+                showLoading(true);
+                try {
+                    const response = await customFetch(`/api/menu-items/${id}`, {
+                        method: 'PUT',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast('Cập nhật thông tin món ăn thành công!');
+                        bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                        await loadMenuItems();
+                    } else {
+                        showToast(result.message || 'Lỗi khi cập nhật món ăn', 'error');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast('Đã xảy ra lỗi hệ thống', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function deleteItem(id) {
+                if (!confirm('Bạn có chắc chắn muốn xóa món ăn này không? Hành động này sẽ xóa vĩnh viễn hình ảnh trên Cloudinary.')) {
+                    return;
+                }
+                
+                showLoading(true);
+                try {
+                    const response = await customFetch(`/api/menu-items/${id}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast('Xóa món ăn thành công!');
+                        await loadMenuItems();
+                    } else {
+                        showToast(result.message || 'Lỗi khi xóa món ăn', 'error');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast('Đã xảy ra lỗi hệ thống', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function viewDetail(id) {
+                showLoading(true);
+                try {
+                    const response = await customFetch(`/api/menu-items/${id}`);
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        const item = result.data;
+                        document.getElementById('detailName').innerText = item.name;
+                        document.getElementById('detailCategory').innerText = item.category ? item.category.name : 'Không phân loại';
+                        document.getElementById('detailPrice').innerText = item.price.toLocaleString('vi-VN') + 'đ';
+                        
+                        const badge = document.getElementById('detailAvailable');
+                        badge.innerText = item.available ? 'CÒN HÀNG' : 'HẾT HÀNG';
+                        badge.className = `badge bg-${item.available ? 'success' : 'danger'}`;
+                        
+                        document.getElementById('detailDescription').innerText = item.description || 'Chưa có mô tả cho món ăn này.';
+                        
+                        const imgContainer = document.getElementById('detailImageContainer');
+                        if (item.imageUrl) {
+                            imgContainer.innerHTML = `<img src="${item.imageUrl}" class="img-fluid rounded border border-secondary shadow" style="max-height: 200px; object-fit: contain; width: 100%;">`;
+                        } else {
+                            imgContainer.innerHTML = `
+                                <div class="p-5 bg-dark rounded border border-secondary text-center text-secondary">
+                                    <i class="bi bi-image fs-1 mb-2 d-block"></i>
+                                    Chưa có hình ảnh
+                                </div>`;
+                        }
+                        
+                        const myModal = new bootstrap.Modal(document.getElementById('detailModal'));
+                        myModal.show();
+                    } else {
+                        showToast(result.message || 'Lỗi khi tải chi tiết món ăn', 'error');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast('Đã xảy ra lỗi khi tải chi tiết món ăn', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
         </script>
     </div>
 </body>

@@ -100,9 +100,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/kitchen/**").authenticated()
 
-                        // Manager only for modifying
-                        .requestMatchers("/api/menu-items/**").hasRole("MANAGER")
-                        .requestMatchers("/api/categories/**").hasRole("MANAGER")
+                        // Admin & Manager for modifying
+                        .requestMatchers("/api/menu-items/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/categories/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/promotions/**").hasRole("MANAGER")
 
                         // Cashier & Admin for modifying
