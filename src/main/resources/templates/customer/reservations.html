@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout-customer :: layout-main('RMS - Đặt bàn', ~{::div#reservation-content})}">
+<body>
+    <div id="reservation-content">
+        <!-- Header Banner -->
+        <section class="py-5 text-center text-white" style="background: linear-gradient(rgba(15, 15, 22, 0.8), rgba(15, 15, 22, 0.8)), url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200') no-repeat center center/cover; padding-top: 80px !important;">
+            <div class="container py-4">
+                <h1 class="display-4 font-serif text-white fw-bold">Đặt Bàn Ăn</h1>
+                <p class="text-secondary Montserrat mb-0" style="letter-spacing: 1px;">Chọn thời gian thích hợp để tận hưởng ẩm thực tinh túy.</p>
+            </div>
+        </section>
+
+        <!-- Main Booking Page Content -->
+        <section class="py-5" style="background: #09090d;">
+            <div class="container py-3">
+                <div class="row g-4">
+                    <!-- Left: Booking Form -->
+                    <div class="col-12 col-lg-5">
+                        <div class="glass-card p-4 rounded-4 border border-secondary">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-calendar-check text-gold me-2"></i>Tạo Lịch Đặt Mới</h4>
+                            <form id="mainBookingForm">
+                                <div class="mb-3">
+                                    <label for="bookName" class="form-label text-white-50 small">Họ và Tên</label>
+                                    <input type="text" class="form-control form-control-glass" id="bookName" placeholder="Nhập họ và tên..." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookPhone" class="form-label text-white-50 small">Số Điện Thoại</label>
+                                    <input type="tel" class="form-control form-control-glass" id="bookPhone" placeholder="Nhập số điện thoại..." required>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <label for="bookDate" class="form-label text-white-50 small">Ngày Đến</label>
+                                        <input type="date" class="form-control form-control-glass" id="bookDate" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="bookTime" class="form-label text-white-50 small">Giờ Đến</label>
+                                        <input type="time" class="form-control form-control-glass" id="bookTime" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bookGuests" class="form-label text-white-50 small">Số Lượng Khách</label>
+                                    <select class="form-select form-control-glass" id="bookGuests" required>
+                                        <option value="1">1 người</option>
+                                        <option value="2" selected>2 người</option>
+                                        <option value="3">3 người</option>
+                                        <option value="4">4 người</option>
+                                        <option value="6">6 người</option>
+                                        <option value="8">8 người</option>
+                                        <option value="10">10+ người</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="bookNotes" class="form-label text-white-50 small">Ghi Chú</label>
+                                    <textarea class="form-control form-control-glass" id="bookNotes" rows="3" placeholder="Yêu cầu riêng..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary-glass w-100 py-3"><i class="bi bi-calendar-plus me-2"></i>Gửi Yêu Cầu Đặt Bàn</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: Active Reservations & History -->
+                    <div class="col-12 col-lg-7">
+                        <div class="glass-card p-4 rounded-4 border border-secondary mb-4">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-clock-history text-gold me-2"></i>Lịch Đặt Của Bạn</h4>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover align-middle mb-0" style="--bs-table-bg: transparent; border-color: rgba(255,255,255,0.05);">
+                                    <thead>
+                                        <tr class="text-secondary small uppercase" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <th scope="col">Mã</th>
+                                            <th scope="col">Ngày đặt</th>
+                                            <th scope="col">Thời gian</th>
+                                            <th scope="col">Khách</th>
+                                            <th scope="col">Trạng thái</th>
+                                            <th scope="col" class="text-end">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bookings-history-tbody">
+                                        <!-- Dynamic rows -->
+                                        <tr id="bookings-loading-row">
+                                            <td colspan="6" class="text-center text-secondary py-4">
+                                                <div class="spinner-border spinner-border-sm text-gold me-2" role="status"></div> Đang tải lịch đặt bàn...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+    <!-- Script integrations -->
+    <script th:src="@{/js/common.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load User details if logged in
+            const token = getCookie('accessToken');
+            if (token) {
+                await loadUserProfileInfo();
+                await fetchReservationsHistory();
+            } else {
+                document.getElementById('bookings-history-tbody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-secondary py-4">
+                            <i class="bi bi-exclamation-circle me-2"></i> Vui lòng <a href="/login" class="text-gold text-decoration-none">đăng nhập</a> để xem lịch sử đặt bàn.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // Bind Form Submission
+            const form = document.getElementById('mainBookingForm');
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (!getCookie('accessToken')) {
+                        showToast('Vui lòng đăng nhập trước khi đặt bàn.', 'warning');
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 1200);
+                        return;
+                    }
+
+                    const requestData = {
+                        fullName: document.getElementById('bookName').value.trim(),
+                        phone: document.getElementById('bookPhone').value.trim(),
+                        reservationDate: document.getElementById('bookDate').value,
+                        reservationTime: document.getElementById('bookTime').value,
+                        numberOfGuests: parseInt(document.getElementById('bookGuests').value),
+                        notes: document.getElementById('bookNotes').value.trim()
+                    };
+
+                    showLoading(true);
+                    try {
+                        const response = await customFetch('/api/customer/reservations', {
+                            method: 'POST',
+                            body: JSON.stringify(requestData)
+                        });
+                        const result = await response.json();
+                        showLoading(false);
+                        if (response.ok && result.success) {
+                            showToast('Đặt bàn thành công!', 'success');
+                            form.reset();
+                            await fetchReservationsHistory();
+                        } else {
+                            showToast(result.message || 'Đặt bàn thất bại.', 'error');
+                        }
+                    } catch (err) {
+                        showLoading(false);
+                        showToast('Lỗi kết nối máy chủ.', 'error');
+                    }
+                });
+            }
+        });
+
+        async function loadUserProfileInfo() {
+            try {
+                const response = await customFetch('/api/auth/profile');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        document.getElementById('bookName').value = result.data.username;
+                        document.getElementById('bookPhone').value = result.data.phone || '';
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchReservationsHistory() {
+            const tbody = document.getElementById('bookings-history-tbody');
+            if (!tbody) return;
+
+            try {
+                const response = await customFetch('/api/customer/reservations/history');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data && result.data.length > 0) {
+                        tbody.innerHTML = '';
+                        const bookings = result.data;
+                        
+                        bookings.forEach(book => {
+                            let statusBadge = '';
+                            let actionBtn = '';
+
+                            if (book.status === 'PENDING') {
+                                statusBadge = '<span class="badge bg-warning text-dark">Đang chờ</span>';
+                                actionBtn = `<button class="btn btn-outline-danger btn-sm" onclick="cancelBooking(${book.id})"><i class="bi bi-x-circle me-1"></i>Hủy</button>`;
+                            } else if (book.status === 'CONFIRMED') {
+                                statusBadge = '<span class="badge bg-success text-dark">Đã duyệt</span>';
+                                actionBtn = `<button class="btn btn-outline-danger btn-sm" onclick="cancelBooking(${book.id})"><i class="bi bi-x-circle me-1"></i>Hủy</button>`;
+                            } else if (book.status === 'COMPLETED') {
+                                statusBadge = '<span class="badge bg-secondary">Hoàn thành</span>';
+                                actionBtn = '<span class="text-secondary small">-</span>';
+                            } else if (book.status === 'CANCELLED') {
+                                statusBadge = '<span class="badge bg-danger">Đã hủy</span>';
+                                actionBtn = '<span class="text-secondary small">-</span>';
+                            }
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="font-monospace">#${book.id}</td>
+                                <td>${book.reservationDate}</td>
+                                <td>${book.reservationTime}</td>
+                                <td>${book.numberOfGuests} người</td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">${actionBtn}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                        return;
+                    }
+                }
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">Bạn chưa có lịch đặt bàn nào.</td></tr>';
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">Không thể kết nối đến máy chủ.</td></tr>';
+            }
+        }
+
+        async function cancelBooking(id) {
+            if (!confirm('Bạn có chắc chắn muốn hủy lịch đặt bàn này?')) return;
+
+            showLoading(true);
+            try {
+                const response = await customFetch(`/api/customer/reservations/${id}/cancel`, {
+                    method: 'PUT'
+                });
+                showLoading(false);
+                if (response.ok) {
+                    showToast('Đã hủy lịch đặt bàn thành công.', 'success');
+                    await fetchReservationsHistory();
+                } else {
+                    const result = await response.json();
+                    showToast(result.message || 'Hủy lịch đặt bàn thất bại.', 'error');
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast('Lỗi kết nối máy chủ.', 'error');
+            }
+        }
+    </script>
+    </div>
+</body>
+</html>

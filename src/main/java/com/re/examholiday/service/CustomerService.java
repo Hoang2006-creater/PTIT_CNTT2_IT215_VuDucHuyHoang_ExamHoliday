@@ -6,6 +6,7 @@ import com.re.examholiday.dto.request.UpdateLoyaltyPointsRequest;
 import com.re.examholiday.dto.response.ApiResponse;
 import com.re.examholiday.dto.response.CustomerOrderResponse;
 import com.re.examholiday.dto.response.CustomerResponse;
+import com.re.examholiday.dto.response.LoyaltyPointHistoryResponse;
 
 import java.util.List;
 
@@ -24,4 +25,8 @@ public interface CustomerService {
     ApiResponse<CustomerResponse> updateLoyaltyPoints(Long id, UpdateLoyaltyPointsRequest request);
 
     ApiResponse<List<CustomerOrderResponse>> getCustomerOrderHistory(Long id);
+
+    ApiResponse<CustomerResponse> getCustomerLoyaltyInfo(String username);
+
+    ApiResponse<List<LoyaltyPointHistoryResponse>> getLoyaltyPointHistory(String username);
 }

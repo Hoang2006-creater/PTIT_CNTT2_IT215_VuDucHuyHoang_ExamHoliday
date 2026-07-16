@@ -6,6 +6,7 @@ import com.re.examholiday.dto.request.UpdateLoyaltyPointsRequest;
 import com.re.examholiday.dto.response.ApiResponse;
 import com.re.examholiday.dto.response.CustomerOrderResponse;
 import com.re.examholiday.dto.response.CustomerResponse;
+import com.re.examholiday.dto.response.LoyaltyPointHistoryResponse;
 import com.re.examholiday.model.Customer;
 import com.re.examholiday.model.Order;
 import com.re.examholiday.model.User;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -223,5 +225,51 @@ public class CustomerServiceImpl implements CustomerService {
         } else {
             return MembershipClass.BRONZE;
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<CustomerResponse> getCustomerLoyaltyInfo(String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            return ApiResponse.error("Không tìm thấy tài khoản");
+        }
+        Customer customer = customerRepository.findByUserId(user.getId()).orElse(null);
+        if (customer == null) {
+            return ApiResponse.error("Tài khoản chưa liên kết thông tin khách hàng.");
+        }
+        return ApiResponse.success("Lấy thông tin thành viên thành công", mapToCustomerResponse(customer));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<List<LoyaltyPointHistoryResponse>> getLoyaltyPointHistory(String username) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            return ApiResponse.error("Không tìm thấy tài khoản");
+        }
+        Customer customer = customerRepository.findByUserId(user.getId()).orElse(null);
+        if (customer == null) {
+            return ApiResponse.error("Tài khoản chưa liên kết thông tin khách hàng.");
+        }
+
+        // Query COMPLETED orders of this customer
+        List<Order> orders = orderRepository.findAll().stream()
+                .filter(o -> o.getCustomer() != null && o.getCustomer().getId().equals(customer.getId()) && o.getStatus() == OrderStatus.COMPLETED)
+                .sorted(Comparator.comparing(Order::getOrderTime).reversed())
+                .collect(Collectors.toList());
+
+        List<LoyaltyPointHistoryResponse> history = orders.stream().map(order -> {
+            int points = order.getTotalAmount().divide(java.math.BigDecimal.valueOf(10000)).intValue();
+            return LoyaltyPointHistoryResponse.builder()
+                    .orderId(order.getId())
+                    .transactionTime(order.getOrderTime())
+                    .description("Tích điểm từ hóa đơn #" + order.getId())
+                    .pointsChange(points)
+                    .type("EARNED")
+                    .build();
+        }).collect(Collectors.toList());
+
+        return ApiResponse.success("Lấy lịch sử tích điểm thành công", history);
     }
 }

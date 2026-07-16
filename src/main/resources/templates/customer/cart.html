@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout-customer :: layout-main('RMS - Giỏ hàng', ~{::div#cart-content})}">
+<body>
+    <div id="cart-content">
+        <!-- Header Banner -->
+        <section class="py-5 text-center text-white" style="background: linear-gradient(rgba(15, 15, 22, 0.8), rgba(15, 15, 22, 0.8)), url('https://images.unsplash.com/photo-1543007630-9710e4a00a20?q=80&w=1200') no-repeat center center/cover; padding-top: 80px !important;">
+            <div class="container py-4">
+                <h1 class="display-4 font-serif text-white fw-bold">Giỏ Hàng Của Bạn</h1>
+                <p class="text-secondary Montserrat mb-0" style="letter-spacing: 1px;">Xem lại danh sách món ăn và tiến hành đặt hàng.</p>
+            </div>
+        </section>
+
+        <!-- Main Cart Page Content -->
+        <section class="py-5" style="background: #09090d;">
+            <div class="container py-3">
+                <div class="row g-4" id="cart-loaded-section">
+                    <!-- Left: Cart Items -->
+                    <div class="col-12 col-lg-8">
+                        <div class="glass-card p-4 rounded-4 border border-secondary mb-4">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-cart3 text-gold me-2"></i>Chi Tiết Món Ăn</h4>
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover align-middle mb-0" style="--bs-table-bg: transparent; border-color: rgba(255,255,255,0.05);">
+                                    <thead>
+                                        <tr class="text-secondary small uppercase" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <th scope="col" style="width: 100px;">Hình ảnh</th>
+                                            <th scope="col">Tên món</th>
+                                            <th scope="col">Đơn giá</th>
+                                            <th scope="col" style="width: 130px;">Số lượng</th>
+                                            <th scope="col">Ghi chú</th>
+                                            <th scope="col" class="text-end">Tổng cộng</th>
+                                            <th scope="col" style="width: 50px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cart-items-tbody">
+                                        <!-- Dynamic items here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Summary & Order Checkout -->
+                    <div class="col-12 col-lg-4">
+                        <div class="glass-card p-4 rounded-4 border border-secondary mb-4 position-sticky" style="top: 100px; z-index: 10;">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-receipt text-gold me-2"></i>Thanh Toán</h4>
+                            
+                            <!-- Select Table -->
+                            <div class="mb-4">
+                                <label for="checkoutTable" class="form-label text-white-50 small">Chọn Bàn Ngồi Ăn <span class="text-danger">*</span></label>
+                                <select class="form-select form-control-glass" id="checkoutTable" required>
+                                    <option value="" disabled selected>Đang tải danh sách bàn...</option>
+                                </select>
+                            </div>
+
+                            <!-- Loyalty Points & Promotions -->
+                            <div class="mb-4 p-3 rounded bg-dark border border-secondary">
+                                <h6 class="text-gold font-serif mb-2"><i class="bi bi-gift me-2"></i>Ưu Đãi & Điểm Tích Lũy</h6>
+                                
+                                <!-- Loyalty Info -->
+                                <div class="mb-3 border-bottom border-secondary pb-2">
+                                    <div class="d-flex justify-content-between small text-secondary">
+                                        <span>Điểm tích lũy:</span>
+                                        <span class="text-white font-weight-bold" id="checkout-loyalty-points">0 điểm</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-secondary mt-1">
+                                        <span>Hạng thành viên:</span>
+                                        <span class="badge bg-primary text-dark" id="checkout-membership-rank">BRONZE</span>
+                                    </div>
+                                </div>
+
+                                <!-- Promo Code Option -->
+                                <div class="mb-3">
+                                    <label for="promoCodeSelect" class="form-label text-white-50 small">Chọn Khuyến Mãi</label>
+                                    <select class="form-select form-control-glass py-1" id="promoCodeSelect" style="font-size: 13px;">
+                                        <option value="" selected>Không áp dụng</option>
+                                    </select>
+                                </div>
+
+                                <!-- Use Points Checkbox -->
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="useLoyaltyPointsSwitch">
+                                    <label class="form-check-label text-white-50 small" for="useLoyaltyPointsSwitch">Dùng điểm tích lũy (Giảm 1,000đ / điểm)</label>
+                                </div>
+                            </div>
+
+                            <!-- Pricing Totals -->
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-secondary">Tạm tính:</span>
+                                    <span class="text-white" id="summary-subtotal">0đ</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 text-danger">
+                                    <span>Khuyến mãi giảm:</span>
+                                    <span id="summary-discount">-0đ</span>
+                                </div>
+                                <hr class="border-secondary">
+                                <div class="d-flex justify-content-between font-weight-bold">
+                                    <span class="text-white font-serif fs-5">Tổng cộng:</span>
+                                    <span class="text-gold font-serif fs-4" id="summary-total">0đ</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary-glass w-100 py-3 mb-2" id="btnPlaceOrder"><i class="bi bi-check2-circle me-2"></i>Đặt Món Ngay</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty Cart State -->
+                <div class="row d-none" id="cart-empty-section">
+                    <div class="col-12 text-center py-5">
+                        <div class="bg-dark p-5 rounded-circle border border-secondary text-secondary mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 140px; height: 140px;">
+                            <i class="bi bi-cart-x fs-1"></i>
+                        </div>
+                        <h3 class="font-serif text-white mb-3">Giỏ Hàng Của Bạn Đang Trống</h3>
+                        <p class="text-secondary mb-4">Hãy tiếp tục khám phá thực đơn phong phú của nhà hàng để chọn món ăn ưa thích.</p>
+                        <a href="/customer/menu" class="btn btn-primary-glass"><i class="bi bi-arrow-left me-2"></i>Quay Lại Thực Đơn</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment QR Code Modal -->
+        <div class="modal fade" id="paymentQrModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="paymentQrModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content text-white" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <div class="modal-header border-bottom border-secondary">
+                        <h4 class="modal-title font-serif text-gold" id="paymentQrModalLabel"><i class="bi bi-qr-code me-2"></i>Thanh Toán Hóa Đơn</h4>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center">
+                        <p class="text-secondary small mb-3">Vui lòng quét mã QR dưới đây bằng ứng dụng ngân hàng hoặc ví điện tử để tiến hành thanh toán cho đơn hàng của bạn.</p>
+                        
+                        <!-- QR Code Frame -->
+                        <div class="bg-white p-3 rounded-3 border border-secondary d-inline-block shadow mb-3" style="width: 240px; height: 240px;">
+                            <img src="" id="paymentQrImage" class="img-fluid" alt="VietQR Payment Code">
+                        </div>
+
+                        <h5 class="text-white font-serif mb-1" id="paymentOrderCode">ĐƠN HÀNG #--</h5>
+                        <p class="text-gold font-weight-bold fs-4 mb-3" id="paymentTotalAmount">0đ</p>
+
+                        <div class="p-3 bg-dark border border-secondary rounded-3 text-start small mb-4">
+                            <div class="d-flex justify-content-between text-secondary mb-1">
+                                <span>Chủ tài khoản:</span>
+                                <span class="text-white">RMS RESTAURANT GROUP</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-secondary mb-1">
+                                <span>Ngân hàng:</span>
+                                <span class="text-white">MB BANK (Ngân hàng Quân Đội)</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-secondary">
+                                <span>Số tài khoản:</span>
+                                <span class="text-white font-monospace">12345678910</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary-glass px-5 py-2 w-100" id="btnFinishPayment"><i class="bi bi-check-lg me-2"></i>Xác Nhận Đã Thanh Toán</button>
+                    </div>
+                </div>
+            </div>
+
+
+    <!-- Script integrations -->
+    <script th:src="@{/js/common.js}"></script>
+    <script>
+        let cartData = null;
+        let activeTables = [];
+        let activePromotions = [];
+        let customerLoyalty = { points: 0, rank: 'BRONZE' };
+        
+        let calculatedDiscount = 0;
+        let calculatedTotal = 0;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load Cart Content
+            await loadCartData();
+
+            // Load Tables List
+            await loadTablesList();
+
+            // Load Promotions List
+            await loadPromotionsList();
+
+            // Load Customer Loyalty Info
+            await loadCustomerLoyaltyInfo();
+
+            // Bind Event Listeners for Checkout Modifiers
+            document.getElementById('promoCodeSelect').addEventListener('change', () => {
+                computeTotals();
+            });
+
+            document.getElementById('useLoyaltyPointsSwitch').addEventListener('change', () => {
+                computeTotals();
+            });
+
+            // Bind Place Order button
+            document.getElementById('btnPlaceOrder').addEventListener('click', () => {
+                executeCheckout();
+            });
+        });
+
+        async function loadCartData() {
+            try {
+                const response = await customFetch('/api/customer/cart');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data && result.data.items && result.data.items.length > 0) {
+                        cartData = result.data;
+                        document.getElementById('cart-loaded-section').classList.remove('d-none');
+                        document.getElementById('cart-empty-section').classList.add('d-none');
+                        
+                        // Populate Table
+                        const tbody = document.getElementById('cart-items-tbody');
+                        tbody.innerHTML = '';
+                        
+                        cartData.items.forEach(item => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td><img src="${item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=100'}" class="rounded-3 border border-secondary" style="width: 60px; height: 60px; object-fit: cover;"></td>
+                                <td>
+                                    <h6 class="text-white mb-0 font-serif">${item.menuItemName}</h6>
+                                </td>
+                                <td>${item.unitPrice.toLocaleString('vi-VN')}đ</td>
+                                <td>
+                                    <div class="input-group input-group-sm" style="width: 100px;">
+                                        <button class="btn btn-outline-light border-secondary" onclick="changeQty(${item.menuItemId}, -1)"><i class="bi bi-dash"></i></button>
+                                        <input type="text" class="form-control form-control-glass text-center font-weight-bold p-0" value="${item.quantity}" readonly>
+                                        <button class="btn btn-outline-light border-secondary" onclick="changeQty(${item.menuItemId}, 1)"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control form-control-glass form-control-sm" style="font-size: 12px; width: 140px;" value="${item.notes || ''}" placeholder="Ghi chú thêm..." onchange="updateNotes(${item.menuItemId}, this.value)">
+                                </td>
+                                <td class="text-end font-weight-bold">${item.subTotal.toLocaleString('vi-VN')}đ</td>
+                                <td class="text-end">
+                                    <button class="btn btn-link text-danger p-0" onclick="removeCartItem(${item.menuItemId})"><i class="bi bi-trash fs-5"></i></button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                        
+                        computeTotals();
+                    } else {
+                        showEmptyCart();
+                    }
+                } else {
+                    showEmptyCart();
+                }
+            } catch (err) {
+                console.error(err);
+                showEmptyCart();
+            }
+        }
+
+        function showEmptyCart() {
+            document.getElementById('cart-loaded-section').classList.add('d-none');
+            document.getElementById('cart-empty-section').classList.remove('d-none');
+        }
+
+        async function loadTablesList() {
+            const select = document.getElementById('checkoutTable');
+            try {
+                const response = await fetch('/api/tables');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        activeTables = result.data;
+                        select.innerHTML = '<option value="" disabled selected>Chọn số bàn...</option>';
+                        activeTables.forEach(t => {
+                            const option = document.createElement('option');
+                            option.value = t.id;
+                            option.textContent = `${t.tableName} (${t.capacity} chỗ - ${t.status === 'AVAILABLE' ? 'Trống' : 'Đang bận'})`;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load tables list:', e);
+                select.innerHTML = '<option value="" disabled>Không thể tải bàn</option>';
+            }
+        }
+
+        async function loadPromotionsList() {
+            const select = document.getElementById('promoCodeSelect');
+            try {
+                const response = await fetch('/api/customer/promotions');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        activePromotions = result.data;
+                        activePromotions.forEach(promo => {
+                            const option = document.createElement('option');
+                            option.value = promo.id;
+                            const desc = promo.discountType === 'PERCENT' ? `${promo.discountValue}%` : `${promo.discountValue.toLocaleString('vi-VN')}đ`;
+                            option.textContent = `${promo.name} (Giảm ${desc})`;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadCustomerLoyaltyInfo() {
+            try {
+                const response = await customFetch('/api/customer/loyalty');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        customerLoyalty = {
+                            points: result.data.loyaltyPoints || 0,
+                            rank: result.data.membershipClass || 'BRONZE'
+                        };
+                        document.getElementById('checkout-loyalty-points').textContent = customerLoyalty.points + ' điểm';
+                        document.getElementById('checkout-membership-rank').textContent = customerLoyalty.rank;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function computeTotals() {
+            if (!cartData) return;
+
+            const subtotal = cartData.totalAmount || 0;
+            calculatedDiscount = 0;
+
+            // Apply promotion discount
+            const selectedPromoId = document.getElementById('promoCodeSelect').value;
+            if (selectedPromoId) {
+                const promo = activePromotions.find(p => p.id.toString() === selectedPromoId);
+                if (promo) {
+                    if (promo.discountType === 'PERCENT') {
+                        calculatedDiscount += (subtotal * promo.discountValue) / 100;
+                    } else {
+                        calculatedDiscount += promo.discountValue;
+                    }
+                }
+            }
+
+            // Apply loyalty points discount
+            const usePoints = document.getElementById('useLoyaltyPointsSwitch').checked;
+            if (usePoints) {
+                // Let's say each point grants 1,000đ discount
+                calculatedDiscount += customerLoyalty.points * 1000;
+            }
+
+            // Check boundaries
+            if (calculatedDiscount > subtotal) {
+                calculatedDiscount = subtotal;
+            }
+
+            calculatedTotal = subtotal - calculatedDiscount;
+
+            // Update UI elements
+            document.getElementById('summary-subtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('summary-discount').textContent = '-' + calculatedDiscount.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('summary-total').textContent = calculatedTotal.toLocaleString('vi-VN') + 'đ';
+        }
+
+        async function changeQty(menuItemId, change) {
+            const item = cartData.items.find(i => i.menuItemId === menuItemId);
+            if (!item) return;
+
+            const newQty = item.quantity + change;
+            if (newQty <= 0) {
+                await removeCartItem(menuItemId);
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const response = await customFetch('/api/customer/cart/update', {
+                    method: 'PUT',
+                    body: JSON.stringify({ menuItemId, quantity: newQty, notes: item.notes || '' })
+                });
+                if (response.ok) {
+                    await loadCartData();
+                } else {
+                    showToast('Cập nhật số lượng thất bại', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function updateNotes(menuItemId, notes) {
+            const item = cartData.items.find(i => i.menuItemId === menuItemId);
+            if (!item) return;
+
+            try {
+                await customFetch('/api/customer/cart/update', {
+                    method: 'PUT',
+                    body: JSON.stringify({ menuItemId, quantity: item.quantity, notes: notes })
+                });
+                showToast('Ghi chú đã được lưu.', 'success');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function removeCartItem(menuItemId) {
+            showLoading(true);
+            try {
+                const response = await customFetch(`/api/customer/cart/remove/${menuItemId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    showToast('Đã xóa món ăn khỏi giỏ hàng.', 'success');
+                    await loadCartData();
+                    if (typeof updateNavbarCartCount === 'function') {
+                        updateNavbarCartCount();
+                    }
+                } else {
+                    showToast('Xóa món ăn thất bại', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function executeCheckout() {
+            const tableId = document.getElementById('checkoutTable').value;
+            if (!tableId) {
+                showToast('Vui lòng chọn bàn bạn đang ngồi để đặt món.', 'warning');
+                return;
+            }
+
+            showLoading(true);
+            try {
+                const response = await customFetch('/api/customer/cart/checkout', {
+                    method: 'POST',
+                    body: JSON.stringify({ tableId: parseInt(tableId) })
+                });
+                const result = await response.json();
+                showLoading(false);
+                if (response.ok && result.success && result.data) {
+                    showToast('Gửi đặt món thành công!', 'success');
+                    
+                    // Show QR Modal for payment instructions
+                    openPaymentQrModal(result.data);
+                    
+                    if (typeof updateNavbarCartCount === 'function') {
+                        updateNavbarCartCount();
+                    }
+                } else {
+                    showToast(result.message || 'Gặp lỗi trong quá trình đặt món.', 'error');
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast('Không thể kết nối đến máy chủ.', 'error');
+            }
+        }
+
+        function openPaymentQrModal(order) {
+            document.getElementById('paymentOrderCode').textContent = `ĐƠN HÀNG #${order.id}`;
+            document.getElementById('paymentTotalAmount').textContent = calculatedTotal.toLocaleString('vi-VN') + 'đ';
+            
+            // Build MB Bank VietQR URL: https://img.vietqr.io/image/MB-12345678910-compact2.png?amount=XXXX&addInfo=Thanh%20toan%20don%20hang%20XXXX
+            const accountNo = "12345678910";
+            const bankName = "MB";
+            const addInfo = encodeURIComponent(`Thanh toan hoa don RMS #${order.id}`);
+            const qrUrl = `https://img.vietqr.io/image/${bankName}-${accountNo}-compact2.png?amount=${calculatedTotal}&addInfo=${addInfo}`;
+            
+            document.getElementById('paymentQrImage').src = qrUrl;
+
+            const modal = new bootstrap.Modal(document.getElementById('paymentQrModal'));
+            modal.show();
+
+            // Handle Confirm Payment button click
+            document.getElementById('btnFinishPayment').onclick = () => {
+                modal.hide();
+                showToast('Hệ thống đang xác nhận giao dịch. Vui lòng kiểm tra lịch sử đơn hàng.', 'success');
+                setTimeout(() => {
+                    window.location.href = '/customer/orders';
+                }, 1000);
+            };
+        }
+    </script>
+    </div>
+</body>
+</html>

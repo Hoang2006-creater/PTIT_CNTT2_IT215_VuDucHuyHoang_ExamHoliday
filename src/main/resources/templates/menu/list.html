@@ -292,9 +292,8 @@
                     const response = await customFetch('/api/menu-items');
                     if (response.ok) {
                         const result = await response.json();
-                        tableBody.innerHTML = '';
-                        
                         if (result.success && result.data && result.data.length > 0) {
+                            tableBody.innerHTML = '';
                             result.data.forEach(item => {
                                 const tr = document.createElement('tr');
                                 
@@ -331,10 +330,10 @@
                                 `;
                                 tableBody.appendChild(tr);
                             });
-                        } else {
-                            tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary py-4">Không tìm thấy món ăn nào.</td></tr>';
+                            return;
                         }
                     }
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-secondary py-4">Chưa có món ăn nào.</td></tr>';
                 } catch (e) {
                     console.error('Failed to load menu list:', e);
                     tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-danger py-4">Có lỗi xảy ra khi lấy danh sách thực đơn.</td></tr>';

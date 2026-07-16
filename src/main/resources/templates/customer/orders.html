@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout-customer :: layout-main('RMS - Đơn hàng của tôi', ~{::div#orders-content})}">
+<body>
+    <div id="orders-content">
+        <!-- Header Banner -->
+        <section class="py-5 text-center text-white" style="background: linear-gradient(rgba(15, 15, 22, 0.8), rgba(15, 15, 22, 0.8)), url('https://images.unsplash.com/photo-1543007630-9710e4a00a20?q=80&w=1200') no-repeat center center/cover; padding-top: 80px !important;">
+            <div class="container py-4">
+                <h1 class="display-4 font-serif text-white fw-bold">Đơn Hàng Của Tôi</h1>
+                <p class="text-secondary Montserrat mb-0" style="letter-spacing: 1px;">Theo dõi danh sách các đơn gọi món và tình trạng chuẩn bị tại bàn ăn.</p>
+            </div>
+        </section>
+
+        <!-- Main Orders Page Content -->
+        <section class="py-5" style="background: #09090d;">
+            <div class="container py-3">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="glass-card p-4 rounded-4 border border-secondary">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-receipt text-gold me-2"></i>Lịch Sử Gọi Món</h4>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover align-middle mb-0" style="--bs-table-bg: transparent; border-color: rgba(255,255,255,0.05);">
+                                    <thead>
+                                        <tr class="text-secondary small uppercase" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <th scope="col">Mã đơn</th>
+                                            <th scope="col">Bàn ăn</th>
+                                            <th scope="col">Thời gian đặt</th>
+                                            <th scope="col">Tổng tiền</th>
+                                            <th scope="col">Trạng thái</th>
+                                            <th scope="col" class="text-end">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orders-history-tbody">
+                                        <!-- Dynamic rows -->
+                                        <tr id="orders-loading-row">
+                                            <td colspan="6" class="text-center text-secondary py-4">
+                                                <div class="spinner-border spinner-border-sm text-gold me-2" role="status"></div> Đang tải lịch sử đơn hàng...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Detail Modal -->
+        <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content text-white" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <div class="modal-header border-bottom border-secondary">
+                        <h4 class="modal-title font-serif text-gold" id="orderDetailModalLabel">Chi Tiết Hóa Đơn #--</h4>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="d-flex justify-content-between flex-wrap gap-2 mb-4 small text-secondary">
+                            <div>Bàn: <span class="text-white font-weight-bold" id="detailOrderTable">--</span></div>
+                            <div>Thời gian: <span class="text-white" id="detailOrderTime">--</span></div>
+                            <div>Nhân viên phục vụ: <span class="text-white" id="detailOrderEmployee">--</span></div>
+                        </div>
+                        
+                        <div class="table-responsive mb-4">
+                            <table class="table table-dark table-hover align-middle" style="--bs-table-bg: transparent; border-color: rgba(255,255,255,0.05);">
+                                <thead>
+                                    <tr class="text-secondary small" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <th scope="col">Món ăn</th>
+                                        <th scope="col">Số lượng</th>
+                                        <th scope="col">Đơn giá</th>
+                                        <th scope="col">Ghi chú</th>
+                                        <th scope="col" class="text-end">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detail-items-tbody">
+                                    <!-- Dynamic detail items -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center border-top border-secondary pt-3">
+                            <h5 class="text-white font-serif mb-0">TỔNG TIỀN THANH TOÁN:</h5>
+                            <h4 class="text-gold font-serif mb-0" id="detailOrderTotal">0đ</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Review Modal -->
+        <div class="modal fade" id="addReviewModal" tabindex="-1" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content text-white" style="background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <div class="modal-header border-bottom border-secondary">
+                        <h4 class="modal-title font-serif text-gold" id="addReviewModalLabel"><i class="bi bi-star-fill text-gold me-2"></i>Đánh Giá Dịch Vụ</h4>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="reviewSubmitForm">
+                            <input type="hidden" id="reviewOrderId">
+                            
+                            <!-- Star Rating -->
+                            <div class="mb-4 text-center">
+                                <label class="form-label text-white-50 small d-block mb-3">Vui lòng chọn số sao đánh giá</label>
+                                <div class="d-flex justify-content-center gap-3 star-rating-container" style="cursor: pointer;">
+                                    <i class="bi bi-star text-secondary fs-1" data-rating="1"></i>
+                                    <i class="bi bi-star text-secondary fs-1" data-rating="2"></i>
+                                    <i class="bi bi-star text-secondary fs-1" data-rating="3"></i>
+                                    <i class="bi bi-star text-secondary fs-1" data-rating="4"></i>
+                                    <i class="bi bi-star text-secondary fs-1" data-rating="5"></i>
+                                </div>
+                                <input type="hidden" id="reviewRatingVal" value="5">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="reviewComment" class="form-label text-white-50 small">Nhận xét của bạn</label>
+                                <textarea class="form-control form-control-glass" id="reviewComment" rows="4" placeholder="Chia sẻ trải nghiệm thực tế của bạn về chất lượng đồ ăn và thái độ phục vụ..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-glass w-100 py-3"><i class="bi bi-send-fill me-2"></i>Gửi Đánh Giá</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+    <!-- Script integrations -->
+    <script th:src="@{/js/common.js}"></script>
+    <script>
+        let currentCustomerId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (getCookie('accessToken')) {
+                // Fetch customer details to get customer ID
+                await fetchCustomerDetails();
+                await fetchOrdersHistory();
+            } else {
+                document.getElementById('orders-history-tbody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-secondary py-4">
+                            <i class="bi bi-exclamation-circle me-2"></i> Vui lòng <a href="/login" class="text-gold text-decoration-none">đăng nhập</a> để xem lịch sử đơn hàng.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            // Setup stars hover/click logic in review modal
+            const stars = document.querySelectorAll('.star-rating-container i');
+            const ratingInput = document.getElementById('reviewRatingVal');
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const rating = parseInt(star.getAttribute('data-rating'));
+                    ratingInput.value = rating;
+                    
+                    // Highlight selected stars
+                    stars.forEach(s => {
+                        const r = parseInt(s.getAttribute('data-rating'));
+                        if (r <= rating) {
+                            s.className = 'bi bi-star-fill text-warning fs-1';
+                        } else {
+                            s.className = 'bi bi-star text-secondary fs-1';
+                        }
+                    });
+                });
+            });
+
+            // Handle review submission
+            const reviewForm = document.getElementById('reviewSubmitForm');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const requestData = {
+                        orderId: parseInt(document.getElementById('reviewOrderId').value),
+                        rating: parseInt(document.getElementById('reviewRatingVal').value),
+                        comment: document.getElementById('reviewComment').value.trim()
+                    };
+
+                    showLoading(true);
+                    try {
+                        const response = await customFetch('/api/customer/reviews', {
+                            method: 'POST',
+                            body: JSON.stringify(requestData)
+                        });
+                        const result = await response.json();
+                        showLoading(false);
+                        if (response.ok && result.success) {
+                            showToast('Cảm ơn bạn đã gửi đánh giá dịch vụ!', 'success');
+                            
+                            // Hide modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addReviewModal'));
+                            if (modal) modal.hide();
+                            
+                            reviewForm.reset();
+                            // Reset stars to 5 stars
+                            stars.forEach(s => s.className = 'bi bi-star-fill text-warning fs-1');
+                            ratingInput.value = 5;
+                        } else {
+                            showToast(result.message || 'Gửi đánh giá thất bại.', 'error');
+                        }
+                    } catch (err) {
+                        showLoading(false);
+                        showToast('Không thể kết nối đến máy chủ.', 'error');
+                    }
+                });
+            }
+        });
+
+        async function fetchCustomerDetails() {
+            try {
+                const response = await customFetch('/api/customer/loyalty');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        currentCustomerId = result.data.id;
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchOrdersHistory() {
+            const tbody = document.getElementById('orders-history-tbody');
+            if (!tbody) return;
+
+            try {
+                // Fetch all orders
+                const response = await customFetch('/api/orders?size=100');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data && result.data.content) {
+                        tbody.innerHTML = '';
+                        
+                        // Filter orders to only display current customer's orders
+                        const orders = result.data.content.filter(o => o.customer && o.customer.id === currentCustomerId);
+                        
+                        if (orders.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">Bạn chưa gọi món ăn nào.</td></tr>';
+                            return;
+                        }
+
+                        orders.forEach(order => {
+                            let statusBadge = '';
+                            let actionBtn = '';
+
+                            if (order.status === 'OPEN') {
+                                statusBadge = '<span class="badge bg-warning text-dark">Chờ phục vụ</span>';
+                            } else if (order.status === 'COMPLETED') {
+                                statusBadge = '<span class="badge bg-success text-dark">Hoàn thành</span>';
+                                // Enable review only for completed orders
+                                actionBtn = `<button class="btn btn-outline-gold btn-xs rounded-pill px-3 py-1 me-2" onclick="openReviewModal(${order.id})"><i class="bi bi-star-fill text-warning me-1"></i>Đánh giá</button>`;
+                            } else if (order.status === 'CANCELLED') {
+                                statusBadge = '<span class="badge bg-danger">Đã hủy</span>';
+                            }
+
+                            // Format order time
+                            let timeStr = order.orderTime;
+                            if (timeStr && timeStr.includes('T')) {
+                                timeStr = timeStr.replace('T', ' ').substring(0, 16);
+                            }
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="font-monospace">#${order.id}</td>
+                                <td>${order.table ? order.table.tableName : 'Không xác định'}</td>
+                                <td>${timeStr || '-'}</td>
+                                <td class="text-gold font-weight-bold">${(order.totalAmount || 0).toLocaleString('vi-VN')}đ</td>
+                                <td>${statusBadge}</td>
+                                <td class="text-end">
+                                    ${actionBtn}
+                                    <button class="btn btn-outline-light btn-xs rounded-pill px-3 py-1" onclick="openOrderDetail(${order.id})"><i class="bi bi-eye me-1"></i>Xem chi tiết</button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">Không thể tải dữ liệu đơn hàng.</td></tr>';
+            }
+        }
+
+        async function openOrderDetail(orderId) {
+            showLoading(true);
+            try {
+                const response = await customFetch(`/api/orders/${orderId}`);
+                showLoading(false);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        const order = result.data;
+                        
+                        document.getElementById('orderDetailModalLabel').textContent = `Chi Tiết Hóa Đơn #${order.id}`;
+                        document.getElementById('detailOrderTable').textContent = order.table ? order.table.tableName : 'Không xác định';
+                        
+                        let timeStr = order.orderTime;
+                        if (timeStr && timeStr.includes('T')) {
+                            timeStr = timeStr.replace('T', ' ').substring(0, 16);
+                        }
+                        document.getElementById('detailOrderTime').textContent = timeStr || '-';
+                        document.getElementById('detailOrderEmployee').textContent = order.employee ? order.employee.fullName : 'Không xác định';
+                        
+                        const tbody = document.getElementById('detail-items-tbody');
+                        tbody.innerHTML = '';
+                        
+                        order.orderDetails.forEach(item => {
+                            const subtotal = item.unitPrice * item.quantity;
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td class="font-serif text-white">${item.menuItem ? item.menuItem.name : 'Món ăn'}</td>
+                                <td>${item.quantity}</td>
+                                <td>${(item.unitPrice || 0).toLocaleString('vi-VN')}đ</td>
+                                <td><span class="text-secondary small italic">${item.notes || '-'}</span></td>
+                                <td class="text-end font-weight-bold text-gold">${subtotal.toLocaleString('vi-VN')}đ</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+
+                        document.getElementById('detailOrderTotal').textContent = (order.totalAmount || 0).toLocaleString('vi-VN') + 'đ';
+
+                        const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+                        modal.show();
+                    }
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast('Lỗi kết nối máy chủ.', 'error');
+            }
+        }
+
+        function openReviewModal(orderId) {
+            document.getElementById('reviewOrderId').value = orderId;
+            document.getElementById('reviewComment').value = '';
+            
+            // Set stars default back to 5
+            const stars = document.querySelectorAll('.star-rating-container i');
+            stars.forEach(s => s.className = 'bi bi-star-fill text-warning fs-1');
+            document.getElementById('reviewRatingVal').value = 5;
+
+            const modal = new bootstrap.Modal(document.getElementById('addReviewModal'));
+            modal.show();
+        }
+    </script>
+    </div>
+</body>
+</html>

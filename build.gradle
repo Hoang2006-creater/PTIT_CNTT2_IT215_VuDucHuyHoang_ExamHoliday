@@ -48,9 +48,7 @@ dependencies {
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
     // Cloudinary SDK
-    dependencies {
-        implementation 'com.cloudinary:cloudinary-http44:1.39.0'
-    }
+    implementation 'com.cloudinary:cloudinary-http44:1.39.0'
 
 }
 

@@ -17,6 +17,10 @@ import com.re.examholiday.model.RefreshToken;
 import com.re.examholiday.model.User;
 import com.re.examholiday.model.enumeration.LoginMethod;
 import com.re.examholiday.model.enumeration.UserStatus;
+import com.re.examholiday.dto.request.UpdateProfileRequest;
+import com.re.examholiday.model.Customer;
+import com.re.examholiday.model.enumeration.RoleName;
+import com.re.examholiday.repository.CustomerRepository;
 import com.re.examholiday.repository.LoginHistoryRepository;
 import com.re.examholiday.repository.OtpTokenRepository;
 import com.re.examholiday.repository.RefreshTokenRepository;
@@ -47,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private final LoginHistoryRepository loginHistoryRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final CustomerRepository customerRepository;
 
     @Value("${security.max-failed-attempts:5}")
     private int maxFailedAttempts;
@@ -282,17 +287,80 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AuthenticationException("Người dùng không tồn tại."));
 
-        UserProfileResponse profile = UserProfileResponse.builder()
+        UserProfileResponse.UserProfileResponseBuilder builder = UserProfileResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole().getName().name())
                 .status(user.getStatus().name())
-                .createdAt(user.getCreatedAt())
-                .build();
+                .createdAt(user.getCreatedAt());
 
-        return ApiResponse.success("Thành công", profile);
+        if (user.getRole().getName() == RoleName.CUSTOMER) {
+            customerRepository.findByUserId(user.getId()).ifPresent(customer -> {
+                builder.fullName(customer.getFullName())
+                       .loyaltyPoints(customer.getLoyaltyPoints())
+                       .membershipClass(customer.getMembershipClass().name());
+            });
+        }
+
+        return ApiResponse.success("Thành công", builder.build());
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<UserProfileResponse> updateProfile(String username, UpdateProfileRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthenticationException("Người dùng không tồn tại."));
+
+        // Validate unique email if changed
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty() && !request.getEmail().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                return ApiResponse.error("Email đã tồn tại ở tài khoản khác");
+            }
+        }
+
+        // Validate unique phone if changed
+        if (request.getPhone() != null && !request.getPhone().trim().isEmpty() && !request.getPhone().equals(user.getPhone())) {
+            if (userRepository.existsByPhone(request.getPhone())) {
+                return ApiResponse.error("Số điện thoại đã tồn tại ở tài khoản khác");
+            }
+        }
+
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        userRepository.save(user);
+
+        // If CUSTOMER, update linked Customer record
+        if (user.getRole().getName() == RoleName.CUSTOMER) {
+            Customer customer = customerRepository.findByUserId(user.getId()).orElse(null);
+            if (customer != null) {
+                customer.setFullName(request.getFullName());
+                customer.setPhone(request.getPhone());
+                customerRepository.save(customer);
+            }
+        }
+
+        // Prepare response
+        UserProfileResponse.UserProfileResponseBuilder builder = UserProfileResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(user.getRole().getName().name())
+                .status(user.getStatus().name())
+                .createdAt(user.getCreatedAt());
+
+        if (user.getRole().getName() == RoleName.CUSTOMER) {
+            customerRepository.findByUserId(user.getId()).ifPresent(customer -> {
+                builder.fullName(customer.getFullName())
+                       .loyaltyPoints(customer.getLoyaltyPoints())
+                       .membershipClass(customer.getMembershipClass().name());
+            });
+        }
+
+        log.info("Người dùng cập nhật thông tin cá nhân thành công: username='{}'", username);
+        return ApiResponse.success("Cập nhật thông tin thành công", builder.build());
     }
 
     // ==================== PRIVATE HELPER METHODS ====================

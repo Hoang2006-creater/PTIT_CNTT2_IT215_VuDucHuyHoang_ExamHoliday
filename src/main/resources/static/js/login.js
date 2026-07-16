@@ -98,9 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         result.data.username
                     );
 
-                    // Redirect to dashboard after a short delay
+                    const redirectUrl = result.data.role === 'CUSTOMER' ? '/' : '/dashboard';
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        window.location.href = redirectUrl;
                     }, 800);
                 } else {
                     // Backend Validation / Authentication Error handling
@@ -224,8 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         result.data.username
                     );
 
+                    const redirectUrl = result.data.role === 'CUSTOMER' ? '/' : '/dashboard';
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        window.location.href = redirectUrl;
                     }, 800);
                 } else {
                     showToast(result.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.', 'error');

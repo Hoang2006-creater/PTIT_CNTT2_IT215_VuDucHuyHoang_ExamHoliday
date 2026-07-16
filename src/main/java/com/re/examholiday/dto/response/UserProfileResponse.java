@@ -22,4 +22,9 @@ public class UserProfileResponse {
     private String role;
     private String status;
     private LocalDateTime createdAt;
+
+    // Customer specific fields
+    private String fullName;
+    private Integer loyaltyPoints;
+    private String membershipClass;
 }

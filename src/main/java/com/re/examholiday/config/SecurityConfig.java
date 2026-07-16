@@ -92,10 +92,13 @@ public class SecurityConfig {
                         // Admin & Manager
                         .requestMatchers("/api/analytics/**").hasAnyRole("ADMIN", "MANAGER")
 
+                        // Public REST GET endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/customer/menu", "/api/customer/menu/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/customer/promotions", "/api/customer/promotions/**").permitAll()
+
                         // Allow GET requests for lists to all authenticated users
                         .requestMatchers(HttpMethod.GET, "/api/menu-items/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/promotions/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/payments/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/kitchen/**").authenticated()

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout-customer :: layout-main('RMS - Trang chủ', ~{::div#customer-content})}">
+<body>
+    <div id="customer-content">
+        <!-- Hero Banner Section -->
+        <section class="hero-section position-relative overflow-hidden d-flex align-items-center" style="height: 90vh; background: linear-gradient(rgba(15, 15, 22, 0.7), rgba(15, 15, 22, 0.7)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1920&auto=format&fit=crop') no-repeat center center/cover;">
+            <div class="container text-center text-white position-relative z-3">
+                <h6 class="text-gold text-uppercase tracking-widest mb-3 font-serif" style="letter-spacing: 4px; font-size: 1.1rem; font-style: italic;">Welcome to RMS Culinary</h6>
+                <h1 class="display-2 font-serif text-white mb-4 fw-bold">Trải Nghiệm Ẩm Thực <br><span style="color: var(--text-gold);">Thượng Hạng</span></h1>
+                <p class="lead text-light-50 mx-auto mb-5 Montserrat" style="max-width: 600px; font-weight: 300;">Hương vị tinh tế hòa quyện cùng không gian sang trọng đẳng cấp Fine Dining.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="/customer/reservations" class="btn btn-primary-glass px-4 py-3"><i class="bi bi-calendar-event me-2"></i>Đặt Bàn Ngay</a>
+                    <a href="/customer/menu" class="btn btn-outline-light rounded-pill px-4 py-3" style="border-color: rgba(255, 255, 255, 0.25); font-weight: 500;"><i class="bi bi-compass me-2"></i>Khám Phá Thực Đơn</a>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 end-0 py-3 text-center" style="background: linear-gradient(transparent, rgba(15,15,22,0.9)); z-index: 2;">
+                <a href="#about-section" class="text-white-50"><i class="bi bi-chevron-double-down fs-3 scroll-arrow"></i></a>
+            </div>
+        </section>
+
+        <!-- Intro Section -->
+        <section id="about-section" class="py-5" style="background: #09090d;">
+            <div class="container py-5">
+                <div class="row align-items-center g-5">
+                    <div class="col-12 col-lg-6">
+                        <h6 class="text-gold text-uppercase mb-2 font-serif" style="letter-spacing: 2px;">Về Chúng Tôi</h6>
+                        <h2 class="display-5 font-serif text-white mb-4 fw-bold">Không Gian Ẩm Thực Sang Trọng & Đẳng Cấp</h2>
+                        <p class="text-secondary mb-4 leading-relaxed">
+                            Tại RMS, chúng tôi tin rằng bữa ăn không chỉ đơn thuần là việc thưởng thức món ăn, mà còn là một cuộc hành trình của các giác quan. Mỗi chi tiết nhỏ trong không gian nhà hàng từ ánh sáng, âm nhạc đến cách bày trí bàn tiệc đều được chăm chút kỹ lưỡng để mang đến cho bạn cảm giác thư thái và trọn vẹn nhất.
+                        </p>
+                        <div class="row g-4 mb-4">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-dark p-3 rounded-circle border border-secondary text-gold me-3"><i class="bi bi-award fs-3"></i></div>
+                                    <div>
+                                        <h5 class="text-white mb-0 font-serif">Nguyên liệu</h5>
+                                        <small class="text-secondary">Tươi ngon 100%</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-dark p-3 rounded-circle border border-secondary text-gold me-3"><i class="bi bi-people fs-3"></i></div>
+                                    <div>
+                                        <h5 class="text-white mb-0 font-serif">Đầu bếp</h5>
+                                        <small class="text-secondary">Chuẩn 5 sao</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600" class="img-fluid rounded-4 shadow-lg border border-secondary" alt="Cuisine 1">
+                            </div>
+                            <div class="col-6">
+                                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600" class="img-fluid rounded-4 shadow-lg border border-secondary mt-4" alt="Cuisine 2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Categories Block -->
+        <section class="py-5" style="background: #0f0f16;">
+            <div class="container py-5 text-center">
+                <h6 class="text-gold text-uppercase mb-2 font-serif" style="letter-spacing: 2px;">Cuisine</h6>
+                <h2 class="display-5 font-serif text-white mb-5 fw-bold">Danh Mục Món Ăn</h2>
+                <div class="row g-4" id="categories-container">
+                    <!-- Loading categories placeholder -->
+                    <div class="col-12 text-center text-secondary">
+                        <div class="spinner-border text-gold" role="status"></div>
+                        <p class="mt-2">Đang tải danh mục món ăn...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Dishes Section -->
+        <section class="py-5" style="background: #09090d;">
+            <div class="container py-5">
+                <div class="d-flex align-items-center justify-content-between mb-5 flex-wrap gap-3">
+                    <div>
+                        <h6 class="text-gold text-uppercase mb-2 font-serif" style="letter-spacing: 2px;">Đặc Sản Nổi Bật</h6>
+                        <h2 class="display-5 font-serif text-white mb-0 fw-bold">Gợi Ý Cho Bạn</h2>
+                    </div>
+                    <a href="/customer/menu" class="btn btn-outline-light rounded-pill px-4 py-2" style="border-color: rgba(255,255,255,0.15);">Xem tất cả món ăn <i class="bi bi-arrow-right ms-2"></i></a>
+                </div>
+                <div class="row g-4" id="featured-dishes-container">
+                    <!-- Loading dishes placeholder -->
+                    <div class="col-12 text-center text-secondary">
+                        <div class="spinner-border text-gold" role="status"></div>
+                        <p class="mt-2">Đang tải danh sách món ăn nổi bật...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promotions Section -->
+        <section class="py-5" style="background: #0f0f16;">
+            <div class="container py-5">
+                <h6 class="text-gold text-center text-uppercase mb-2 font-serif" style="letter-spacing: 2px;">Ưu Đãi Đặc Biệt</h6>
+                <h2 class="display-5 text-center font-serif text-white mb-5 fw-bold">Khuyến Mãi Đang Diễn Ra</h2>
+                <div class="row g-4" id="promotions-container">
+                    <!-- Loading promotions placeholder -->
+                    <div class="col-12 text-center text-secondary">
+                        <div class="spinner-border text-gold" role="status"></div>
+                        <p class="mt-2">Đang tải thông tin ưu đãi...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Table Booking Form Section -->
+        <section class="py-5" style="background: linear-gradient(rgba(9, 9, 13, 0.9), rgba(9, 9, 13, 0.9)), url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1920&auto=format&fit=crop') no-repeat center center/cover;">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-8">
+                        <div class="glass-card p-4 p-md-5 rounded-4 border border-secondary shadow-2xl">
+                            <h6 class="text-gold text-center text-uppercase mb-2 font-serif" style="letter-spacing: 2px;">Lịch Hẹn</h6>
+                            <h2 class="display-5 text-center font-serif text-white mb-4 fw-bold">Đặt Bàn Trực Tuyến</h2>
+                            
+                            <form id="homeBookingForm">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label for="bookingName" class="form-label text-white-50 small">Họ và Tên</label>
+                                        <input type="text" class="form-control form-control-glass" id="bookingName" placeholder="Họ và Tên của bạn..." required>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label for="bookingPhone" class="form-label text-white-50 small">Số Điện Thoại</label>
+                                        <input type="tel" class="form-control form-control-glass" id="bookingPhone" placeholder="Số điện thoại liên hệ..." required>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label for="bookingDate" class="form-label text-white-50 small">Ngày Đến</label>
+                                        <input type="date" class="form-control form-control-glass" id="bookingDate" required>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label for="bookingTime" class="form-label text-white-50 small">Giờ Đến</label>
+                                        <input type="time" class="form-control form-control-glass" id="bookingTime" required>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label for="bookingGuests" class="form-label text-white-50 small">Số Khách</label>
+                                        <select class="form-select form-control-glass" id="bookingGuests" required>
+                                            <option value="1">1 người</option>
+                                            <option value="2" selected>2 người</option>
+                                            <option value="3">3 người</option>
+                                            <option value="4">4 người</option>
+                                            <option value="6">6 người</option>
+                                            <option value="8">8 người</option>
+
+                                         <option value="10">10+ người</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="bookingNotes" class="form-label text-white-50 small">Ghi Chú Đặc Biệt (Không bắt buộc)</label>
+                                        <textarea class="form-control form-control-glass" id="bookingNotes" rows="3" placeholder="Yêu cầu bàn view đẹp, tổ chức sinh nhật, dị ứng thức ăn..."></textarea>
+                                    </div>
+                                    <div class="col-12 text-center mt-4">
+                                        <button type="submit" class="btn btn-primary-glass px-5 py-3"><i class="bi bi-check2-circle me-2"></i>Xác Nhận Đặt Bàn</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Reviews Section -->
+        <section class="py-5" style="background: #09090d;">
+            <div class="container py-5">
+                <h6 class="text-gold text-center text-uppercase mb-2 font-serif" style="letter-spacing: 2px;">Đánh Giá</h6>
+                <h2 class="display-5 text-center font-serif text-white mb-5 fw-bold">Khách Hàng Nói Gì Về Chúng Tôi</h2>
+                
+                <div class="row g-4 justify-content-center" id="reviews-container">
+                    <!-- Loading reviews placeholder -->
+                    <div class="col-12 text-center text-secondary">
+                        <div class="spinner-border text-gold" role="status"></div>
+                        <p class="mt-2">Đang tải nhận xét...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inject Javascript file -->
+        <script th:src="@{/js/common.js}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                // Load Categories
+                loadHomeCategories();
+                
+                // Load Featured Dishes
+                loadHomeFeaturedDishes();
+
+                // Load Promotions
+                loadHomePromotions();
+
+                // Load Testimonials
+                loadHomeReviews();
+
+                // Handle Booking form submission
+                const bookingForm = document.getElementById('homeBookingForm');
+                if (bookingForm) {
+                    // Pre-populate user details if authenticated
+                    const token = getCookie('accessToken');
+                    if (token) {
+                        try {
+                            const response = await customFetch('/api/auth/profile');
+                            if (response.ok) {
+                                const result = await response.json();
+                                if (result.success && result.data) {
+                                    document.getElementById('bookingName').value = result.data.username;
+                                    document.getElementById('bookingPhone').value = result.data.phone || '';
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Failed to pre-populate details:', e);
+                        }
+                    }
+
+                    bookingForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        if (!getCookie('accessToken')) {
+                            showToast('Vui lòng đăng nhập trước khi đặt bàn.', 'warning');
+                            setTimeout(() => {
+                                window.location.href = '/login';
+                            }, 1200);
+                            return;
+                        }
+
+                        const requestData = {
+                            fullName: document.getElementById('bookingName').value.trim(),
+                            phone: document.getElementById('bookingPhone').value.trim(),
+                            reservationDate: document.getElementById('bookingDate').value,
+                            reservationTime: document.getElementById('bookingTime').value,
+                            numberOfGuests: parseInt(document.getElementById('bookingGuests').value),
+                            notes: document.getElementById('bookingNotes').value.trim()
+                        };
+
+                        showLoading(true);
+                        try {
+                            const response = await customFetch('/api/customer/reservations', {
+                                method: 'POST',
+                                body: JSON.stringify(requestData)
+                            });
+                            const result = await response.json();
+                            showLoading(false);
+                            if (response.ok && result.success) {
+                                showToast('Đặt bàn thành công! Chúng tôi sẽ liên hệ sớm nhất để xác nhận.', 'success');
+                                bookingForm.reset();
+                            } else {
+                                showToast(result.message || 'Đặt bàn thất bại. Vui lòng thử lại.', 'error');
+                            }
+                        } catch (error) {
+                            showLoading(false);
+                            showToast('Không thể kết nối đến máy chủ.', 'error');
+                        }
+                    });
+                }
+            });
+
+            async function loadHomeCategories() {
+                const container = document.getElementById('categories-container');
+                if (!container) return;
+
+                try {
+                    const response = await fetch('/api/categories');
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data && result.data.length > 0) {
+                            container.innerHTML = '';
+                            result.data.slice(0, 4).forEach(cat => {
+                                // Assign a default beautiful image or icon based on category
+                                let catImg = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300';
+                                if (cat.name.toLowerCase().includes('khai vị') || cat.name.toLowerCase().includes('appetizer')) {
+                                    catImg = 'https://images.unsplash.com/photo-1547592180-85f173990554?q=80&w=300';
+                                } else if (cat.name.toLowerCase().includes('món chính') || cat.name.toLowerCase().includes('main')) {
+                                    catImg = 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=300';
+                                } else if (cat.name.toLowerCase().includes('tráng miệng') || cat.name.toLowerCase().includes('dessert')) {
+                                    catImg = 'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=300';
+                                } else if (cat.name.toLowerCase().includes('uống') || cat.name.toLowerCase().includes('drink') || cat.name.toLowerCase().includes('nước')) {
+                                    catImg = 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=300';
+                                }
+
+                                const card = document.createElement('div');
+                                card.className = 'col-6 col-md-3';
+                                card.innerHTML = `
+                                    <div class="glass-card p-3 h-100 rounded-4 border border-secondary shadow-sm transition hover-translate" style="cursor: pointer;" onclick="window.location.href='/customer/menu?category=${cat.id}'">
+                                        <img src="${catImg}" class="img-fluid rounded-3 mb-3" style="height: 140px; object-fit: cover; width: 100%;" alt="${cat.name}">
+                                        <h5 class="text-white text-truncate mb-0 font-serif">${cat.name}</h5>
+                                    </div>
+                                `;
+                                container.appendChild(card);
+                            });
+                            return;
+                        }
+                    }
+                    container.innerHTML = '<div class="col-12 text-center text-secondary py-3">Chưa có danh mục món ăn.</div>';
+                } catch (err) {
+                    console.error(err);
+                    container.innerHTML = '<div class="col-12 text-center text-danger py-3">Không thể tải danh mục món ăn.</div>';
+                }
+            }
+
+            async function loadHomeFeaturedDishes() {
+                const container = document.getElementById('featured-dishes-container');
+                if (!container) return;
+
+                try {
+                    const response = await fetch('/api/customer/menu?size=4');
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data && result.data.content && result.data.content.length > 0) {
+                            container.innerHTML = '';
+                            result.data.content.forEach(item => {
+                                const priceStr = (item.price || 0).toLocaleString('vi-VN') + 'đ';
+                                const imageSrc = item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400';
+                                
+                                const col = document.createElement('div');
+                                col.className = 'col-12 col-sm-6 col-md-3';
+                                col.innerHTML = `
+                                    <div class="glass-card h-100 rounded-4 border border-secondary shadow-sm overflow-hidden d-flex flex-column">
+                                        <div class="position-relative overflow-hidden" style="height: 180px;">
+                                            <img src="${imageSrc}" class="w-100 h-100" style="object-fit: cover;" alt="${item.name}">
+                                        </div>
+                                        <div class="p-3 d-flex flex-column flex-grow-1">
+                                            <h5 class="text-white text-truncate font-serif mb-1">${item.name}</h5>
+                                            <p class="text-secondary small text-truncate-2 mb-3 flex-grow-1">${item.description || 'Hương vị tuyệt hảo được chuẩn bị công phu.'}</p>
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="text-gold font-weight-bold">${priceStr}</span>
+                                                <button onclick="addToCartDirectly(${item.id})" class="btn btn-sm btn-primary-glass px-3 py-2"><i class="bi bi-cart-plus"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                container.appendChild(col);
+                            });
+                            return;
+                        }
+                    }
+                    container.innerHTML = '<div class="col-12 text-center text-secondary py-3">Chưa có món ăn nổi bật nào.</div>';
+                } catch (err) {
+                    console.error(err);
+                    container.innerHTML = '<div class="col-12 text-center text-danger py-3">Không thể tải món ăn nổi bật.</div>';
+                }
+            }
+
+            async function loadHomePromotions() {
+                const container = document.getElementById('promotions-container');
+                if (!container) return;
+
+                try {
+                    const response = await fetch('/api/customer/promotions');
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data && result.data.length > 0) {
+                            container.innerHTML = '';
+                            result.data.slice(0, 3).forEach(promo => {
+                                const discountTypeStr = promo.discountType === 'PERCENT' ? `Giảm ${promo.discountValue}%` : `Giảm ${promo.discountValue.toLocaleString('vi-VN')}đ`;
+                                const card = document.createElement('div');
+                                card.className = 'col-12 col-md-4';
+                                card.innerHTML = `
+                                    <div class="glass-card p-4 rounded-4 border border-secondary shadow-sm h-100 text-center" style="border-top: 4px solid var(--primary) !important;">
+                                        <span class="badge bg-danger mb-3 py-2 px-3" style="font-size: 13px;">${discountTypeStr}</span>
+                                        <h4 class="text-white mb-2 font-serif">${promo.name}</h4>
+                                        <p class="text-secondary small mb-4">${promo.description}</p>
+                                        <div class="bg-dark py-2 px-3 rounded border border-secondary text-gold font-monospace d-inline-block" style="font-size: 1.1rem; letter-spacing: 1px;">Mã: ${promo.code}</div>
+                                    </div>
+                                `;
+                                container.appendChild(card);
+                            });
+                            return;
+                        }
+                    }
+                    container.innerHTML = '<div class="col-12 text-center text-secondary py-3">Hiện tại không có khuyến mãi nào đang hoạt động.</div>';
+                } catch (err) {
+                    console.error(err);
+                    container.innerHTML = '<div class="col-12 text-center text-danger py-3">Không thể tải danh sách khuyến mãi.</div>';
+                }
+            }
+
+            async function loadHomeReviews() {
+                const container = document.getElementById('reviews-container');
+                if (!container) return;
+
+                // Generate some predefined realistic mock customer reviews for the landing page presentation
+                const mockReviews = [
+                    { name: 'Nguyễn Văn Hùng', stars: 5, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100', comment: 'Món bò nướng sốt vang ở đây cực kỳ thơm ngon, thịt mềm và ngấm vị. Không gian quán lại vô cùng sang trọng và ấm cúng. Sẽ quay lại nhiều lần.' },
+                    { name: 'Trần Thị Mai', stars: 5, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100', comment: 'Thái độ phục vụ của nhân viên vô cùng chuyên nghiệp và thân thiện. Món ăn lên nhanh, bài trí tinh tế đúng điệu Fine Dining. Đặt bàn trên web rất tiện.' },
+                    { name: 'Lê Huy Hoàng', stars: 5, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100', comment: 'Khuyến mãi tặng điểm thành viên rất hấp dẫn. Hạng vàng được giảm giá nhiều. Thực đơn phong phú và đa dạng các món ẩm thực Âu - Á cực kỳ đỉnh.' }
+                ];
+
+                container.innerHTML = '';
+                mockReviews.forEach(rev => {
+                    let starsHtml = '';
+                    for (let i = 0; i < rev.stars; i++) {
+                        starsHtml += '<i class="bi bi-star-fill text-warning me-1"></i>';
+                    }
+                    const card = document.createElement('div');
+                    card.className = 'col-12 col-md-4';
+                    card.innerHTML = `
+                        <div class="glass-card p-4 rounded-4 border border-secondary shadow-sm h-100 d-flex flex-column">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="${rev.avatar}" class="rounded-circle border border-secondary me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="${rev.name}">
+                                <div>
+                                    <h6 class="text-white mb-0 font-serif">${rev.name}</h6>
+                                    <div style="font-size: 0.85rem;">${starsHtml}</div>
+                                </div>
+                            </div>
+                            <p class="text-secondary small italic mb-0 flex-grow-1" style="line-height: 1.6; font-style: italic;">"${rev.comment}"</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+
+            async function addToCartDirectly(itemId) {
+                if (!getCookie('accessToken')) {
+                    showToast('Vui lòng đăng nhập trước khi thêm món ăn vào giỏ hàng.', 'warning');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1200);
+                    return;
+                }
+
+                showLoading(true);
+                try {
+                    const response = await customFetch('/api/customer/cart/add', {
+                        method: 'POST',
+                        body: JSON.stringify({ menuItemId: itemId, quantity: 1, notes: '' })
+                    });
+                    const result = await response.json();
+                    showLoading(false);
+                    if (response.ok && result.success) {
+                        showToast('Đã thêm món ăn vào giỏ hàng!', 'success');
+                        updateNavbarCartCount();
+                    } else {
+                        showToast(result.message || 'Thêm vào giỏ hàng thất bại.', 'error');
+                    }
+                } catch (err) {
+                    showLoading(false);
+                    showToast('Không thể kết nối đến máy chủ.', 'error');
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

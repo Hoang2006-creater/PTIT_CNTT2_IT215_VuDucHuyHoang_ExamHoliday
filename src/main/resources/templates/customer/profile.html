@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout-customer :: layout-main('RMS - Hồ sơ cá nhân', ~{::div#profile-content})}">
+<body>
+    <div id="profile-content">
+        <!-- Header Banner -->
+        <section class="py-5 text-center text-white" style="background: linear-gradient(rgba(15, 15, 22, 0.8), rgba(15, 15, 22, 0.8)), url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200') no-repeat center center/cover; padding-top: 80px !important;">
+            <div class="container py-4">
+                <h1 class="display-4 font-serif text-white fw-bold">Hồ Sơ Của Bạn</h1>
+                <p class="text-secondary Montserrat mb-0" style="letter-spacing: 1px;">Quản lý thông tin tài khoản, điểm tích lũy thành viên và món ăn yêu thích.</p>
+            </div>
+        </section>
+
+        <!-- Main Profile Page Content -->
+        <section class="py-5" style="background: #09090d;">
+            <div class="container py-3">
+                <div class="row g-4">
+                    <!-- Left: Profile Info Form -->
+                    <div class="col-12 col-lg-7">
+                        <div class="glass-card p-4 rounded-4 border border-secondary shadow-lg">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-person-bounding-box text-gold me-2"></i>Thông Tin Cá Nhân</h4>
+                            <form id="profileUpdateForm">
+                                <div class="mb-3">
+                                    <label for="usernameInput" class="form-label text-white-50 small">Tên đăng nhập</label>
+                                    <input type="text" class="form-control form-control-glass bg-dark" id="usernameInput" readonly style="opacity: 0.7;">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fullNameInput" class="form-label text-white-50 small">Họ và Tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-glass" id="fullNameInput" placeholder="Nhập họ và tên..." required>
+                                </div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <label for="emailInput" class="form-label text-white-50 small">Địa chỉ Email</label>
+                                        <input type="email" class="form-control form-control-glass" id="emailInput" placeholder="Nhập địa chỉ email...">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="phoneInput" class="form-label text-white-50 small">Số Điện Thoại <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control form-control-glass" id="phoneInput" placeholder="Nhập số điện thoại..." required>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="submit" class="btn btn-primary-glass px-4 py-3"><i class="bi bi-check2-circle me-2"></i>Lưu Thay Đổi</button>
+                                    <a href="/change-password" class="btn btn-outline-light rounded-pill px-4 py-3" style="border-color: rgba(255,255,255,0.15); font-weight: 500;"><i class="bi bi-shield-lock me-2"></i>Đổi Mật Khẩu</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: Loyalty points & Rank Progress Bar -->
+                    <div class="col-12 col-lg-5">
+                        <div class="glass-card p-4 rounded-4 border border-secondary shadow-lg h-100 d-flex flex-column justify-content-between" style="background: linear-gradient(135deg, rgba(20,20,30,0.85) 0%, rgba(44,14,26,0.3) 100%);">
+                            <div>
+                                <h4 class="text-white font-serif mb-4"><i class="bi bi-credit-card-2-front text-gold me-2"></i>Thẻ Thành Viên</h4>
+                                
+                                <div class="p-4 rounded-3 border mb-4 text-center" style="border-color: var(--primary) !important; background: rgba(15,15,22,0.6);">
+                                    <h6 class="text-secondary small tracking-widest text-uppercase mb-2">Hạng hiện tại</h6>
+                                    <h2 class="display-6 font-serif text-gold fw-bold mb-3" id="loyalty-badge-class">BRONZE</h2>
+                                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                        <i class="bi bi-gift-fill text-gold fs-4"></i>
+                                        <h3 class="text-white mb-0 font-serif" id="loyalty-points-val">0</h3>
+                                        <span class="text-secondary small">điểm tích lũy</span>
+                                    </div>
+                                </div>
+
+                                <!-- Membership progress bar -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between text-secondary small mb-1">
+                                        <span id="rank-progress-left-label">BRONZE</span>
+                                        <span id="rank-progress-right-label">SILVER (100đ)</span>
+                                    </div>
+                                    <div class="progress bg-dark" style="height: 10px; border-radius: 5px;">
+                                        <div class="progress-bar" id="rank-progress-bar" role="progressbar" style="width: 0%; background-color: var(--primary);" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="text-center text-secondary small mt-2" id="rank-progress-desc">
+                                        Cần tích lũy thêm 100 điểm để lên hạng tiếp theo.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="/customer/reservations" class="btn btn-outline-gold rounded-pill w-100 py-3 text-center" style="border-color: var(--primary); color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;"><i class="bi bi-calendar-event me-2"></i>Đặt bàn ngay</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Favorite Foods Section -->
+                <div class="row g-4 mt-5">
+                    <div class="col-12">
+                        <div class="glass-card p-4 rounded-4 border border-secondary">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-heart-fill text-danger me-2"></i>Món Yêu Thích</h4>
+                            <div class="row g-3" id="favorites-grid">
+                                <!-- Loading placeholder -->
+                                <div class="col-12 text-center text-secondary py-3">
+                                    <div class="spinner-border spinner-border-sm text-gold me-2" role="status"></div> Đang tải món ăn yêu thích...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Loyalty Point History -->
+                <div class="row g-4 mt-5">
+                    <div class="col-12">
+                        <div class="glass-card p-4 rounded-4 border border-secondary">
+                            <h4 class="text-white font-serif mb-4"><i class="bi bi-clock-history text-gold me-2"></i>Lịch Sử Tích Điểm</h4>
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover align-middle mb-0" style="--bs-table-bg: transparent; border-color: rgba(255,255,255,0.05);">
+                                    <thead>
+                                        <tr class="text-secondary small uppercase" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <th scope="col">Mã hóa đơn</th>
+                                            <th scope="col">Thời gian</th>
+                                            <th scope="col">Mô tả</th>
+                                            <th scope="col">Điểm thay đổi</th>
+                                            <th scope="col">Loại</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="loyalty-history-tbody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-secondary py-4">Đang tải lịch sử tích điểm...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+    <!-- Script integrations -->
+    <script th:src="@{/js/common.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load User details
+            await fetchUserProfile();
+
+            // Load Loyalty Info
+            await fetchCustomerLoyaltyCard();
+
+            // Load Favorites Grid
+            await fetchCustomerFavorites();
+
+            // Load Loyalty Point History
+            await fetchLoyaltyPointHistory();
+
+            // Handle Profile Update Submission
+            const form = document.getElementById('profileUpdateForm');
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const requestData = {
+                        fullName: document.getElementById('fullNameInput').value.trim(),
+                        email: document.getElementById('emailInput').value.trim(),
+                        phone: document.getElementById('phoneInput').value.trim()
+                    };
+
+                    showLoading(true);
+                    try {
+                        const response = await customFetch('/api/auth/profile', {
+                            method: 'PUT',
+                            body: JSON.stringify(requestData)
+                        });
+                        const result = await response.json();
+                        showLoading(false);
+                        if (response.ok && result.success) {
+                            showToast('Cập nhật hồ sơ cá nhân thành công!', 'success');
+                            // Update name in navbar if present
+                            const profileNameEl = document.getElementById('profile-name');
+                            if (profileNameEl) profileNameEl.textContent = requestData.fullName;
+                        } else {
+                            showToast(result.message || 'Cập nhật thất bại. Vui lòng kiểm tra lại.', 'error');
+                        }
+                    } catch (err) {
+                        showLoading(false);
+                        showToast('Không thể kết nối đến máy chủ.', 'error');
+                    }
+                });
+            }
+        });
+
+        async function fetchUserProfile() {
+            try {
+                const response = await customFetch('/api/auth/profile');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        const user = result.data;
+                        document.getElementById('usernameInput').value = user.username;
+                        document.getElementById('fullNameInput').value = user.username; // Wait, auth profile contains username. Does it have fullName? Let's use user.username as fallback
+                        // Let's call /api/customer/loyalty which might return Customer detail with fullName!
+                        const customerLoyaltyResponse = await customFetch('/api/customer/loyalty');
+                        if (customerLoyaltyResponse.ok) {
+                            const customerLoyaltyResult = await customerLoyaltyResponse.json();
+                            if (customerLoyaltyResult.success && customerLoyaltyResult.data) {
+                                document.getElementById('fullNameInput').value = customerLoyaltyResult.data.fullName || user.username;
+                            }
+                        }
+                        
+                        document.getElementById('emailInput').value = user.email || '';
+                        document.getElementById('phoneInput').value = user.phone || '';
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchCustomerLoyaltyCard() {
+            try {
+                const response = await customFetch('/api/customer/loyalty');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        const loyalty = result.data;
+                        
+                        document.getElementById('loyalty-badge-class').textContent = loyalty.membershipClass;
+                        document.getElementById('loyalty-points-val').textContent = loyalty.loyaltyPoints;
+                        
+                        // Render rank progress
+                        const points = loyalty.loyaltyPoints;
+                        let barPercent = 0;
+                        let nextRank = '';
+                        let targetPoints = 0;
+                        let leftLabel = 'BRONZE';
+
+                        if (points >= 1000) {
+                            barPercent = 100;
+                            leftLabel = 'PLATINUM';
+                            nextRank = 'MAX RANK';
+                            document.getElementById('rank-progress-desc').textContent = 'Bạn đã đạt hạng thành viên cao nhất!';
+                        } else if (points >= 500) {
+                            leftLabel = 'GOLD';
+                            nextRank = 'PLATINUM (1000đ)';
+                            targetPoints = 1000;
+                            barPercent = ((points - 500) / 500) * 100;
+                            document.getElementById('rank-progress-desc').textContent = `Cần tích lũy thêm ${1000 - points} điểm để thăng hạng PLATINUM.`;
+                        } else if (points >= 100) {
+                            leftLabel = 'SILVER';
+                            nextRank = 'GOLD (500đ)';
+                            targetPoints = 500;
+                            barPercent = ((points - 100) / 400) * 100;
+                            document.getElementById('rank-progress-desc').textContent = `Cần tích lũy thêm ${500 - points} điểm để thăng hạng GOLD.`;
+                        } else {
+                            leftLabel = 'BRONZE';
+                            nextRank = 'SILVER (100đ)';
+                            targetPoints = 100;
+                            barPercent = (points / 100) * 100;
+                            document.getElementById('rank-progress-desc').textContent = `Cần tích lũy thêm ${100 - points} điểm để thăng hạng SILVER.`;
+                        }
+
+                        document.getElementById('rank-progress-left-label').textContent = leftLabel;
+                        document.getElementById('rank-progress-right-label').textContent = nextRank;
+                        
+                        const bar = document.getElementById('rank-progress-bar');
+                        bar.style.width = `${barPercent}%`;
+                        bar.setAttribute('aria-valuenow', points);
+                        bar.setAttribute('aria-valuemax', targetPoints);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchCustomerFavorites() {
+            const grid = document.getElementById('favorites-grid');
+            if (!grid) return;
+
+            try {
+                const response = await customFetch('/api/customer/favorites');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        grid.innerHTML = '';
+                        const items = result.data;
+                        
+                        if (items.length === 0) {
+                            grid.innerHTML = '<div class="col-12 text-center text-secondary py-3">Danh sách món ăn yêu thích trống.</div>';
+                            return;
+                        }
+
+                        items.forEach(item => {
+                            const priceStr = (item.price || 0).toLocaleString('vi-VN') + 'đ';
+                            const imageSrc = item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200';
+
+                            const col = document.createElement('div');
+                            col.className = 'col-12 col-sm-6 col-md-4';
+                            col.innerHTML = `
+                                <div class="glass-card p-3 rounded-3 border border-secondary shadow-sm d-flex gap-3 align-items-center">
+                                    <img src="${imageSrc}" class="rounded-3 border border-secondary" style="width: 70px; height: 70px; object-fit: cover;">
+                                    <div class="flex-grow-1 min-width-0">
+                                        <h6 class="text-white text-truncate font-serif mb-1">${item.name}</h6>
+                                        <p class="text-gold font-weight-bold mb-0 small">${priceStr}</p>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2">
+                                        <button onclick="addToCartFromFavorites(${item.menuItemId})" class="btn btn-sm btn-primary-glass px-2 py-1"><i class="bi bi-cart-plus"></i></button>
+                                        <button onclick="removeFavoriteFromProfile(${item.menuItemId})" class="btn btn-sm btn-outline-danger px-2 py-1"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                </div>
+                            `;
+                            grid.appendChild(col);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = '<div class="col-12 text-center text-secondary py-3">Không thể tải món ăn yêu thích.</div>';
+            }
+        }
+
+        async function fetchLoyaltyPointHistory() {
+            const tbody = document.getElementById('loyalty-history-tbody');
+            if (!tbody) return;
+
+            try {
+                const response = await customFetch('/api/customer/loyalty/history');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        tbody.innerHTML = '';
+                        const history = result.data;
+                        
+                        if (history.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-3">Chưa có lịch sử tích lũy điểm.</td></tr>';
+                            return;
+                        }
+
+                        history.forEach(item => {
+                            const tr = document.createElement('tr');
+                            
+                            // Format date
+                            let timeStr = item.transactionTime;
+                            if (timeStr && timeStr.includes('T')) {
+                                timeStr = timeStr.replace('T', ' ').substring(0, 16);
+                            }
+
+                            tr.innerHTML = `
+                                <td class="font-monospace">#${item.orderId}</td>
+                                <td>${timeStr || '-'}</td>
+                                <td>${item.description || '-'}</td>
+                                <td class="text-success font-weight-bold">+${item.pointsChange}đ</td>
+                                <td><span class="badge bg-success-glass text-success">${item.type}</span></td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-3">Không thể tải lịch sử tích điểm.</td></tr>';
+            }
+        }
+
+        async function addToCartFromFavorites(itemId) {
+            showLoading(true);
+            try {
+                const response = await customFetch('/api/customer/cart/add', {
+                    method: 'POST',
+                    body: JSON.stringify({ menuItemId: itemId, quantity: 1, notes: '' })
+                });
+                showLoading(false);
+                if (response.ok) {
+                    showToast('Đã thêm món ăn vào giỏ hàng!', 'success');
+                    if (typeof updateNavbarCartCount === 'function') {
+                        updateNavbarCartCount();
+                    }
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast('Lỗi kết nối.', 'error');
+            }
+        }
+
+        async function removeFavoriteFromProfile(itemId) {
+            showLoading(true);
+            try {
+                const response = await customFetch(`/api/customer/favorites/remove/${itemId}`, {
+                    method: 'DELETE'
+                });
+                showLoading(false);
+                if (response.ok) {
+                    showToast('Đã xóa món ăn khỏi danh sách yêu thích.', 'success');
+                    await fetchCustomerFavorites();
+                }
+            } catch (err) {
+                showLoading(false);
+                showToast('Lỗi kết nối.', 'error');
+            }
+        }
+    </script>
+    </div>
+</body>
+</html>

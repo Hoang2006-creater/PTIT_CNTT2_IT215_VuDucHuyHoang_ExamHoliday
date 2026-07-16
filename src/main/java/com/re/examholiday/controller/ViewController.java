@@ -10,15 +10,24 @@ public class ViewController {
     @GetMapping("/")
     public String index(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            return "redirect:/dashboard";
+            boolean isAdminOrManager = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_MANAGER"));
+            if (isAdminOrManager) {
+                return "redirect:/dashboard";
+            }
         }
-        return "redirect:/login";
+        return "index";
     }
 
     @GetMapping("/login")
     public String login(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            return "redirect:/dashboard";
+            boolean isAdminOrManager = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_MANAGER"));
+            if (isAdminOrManager) {
+                return "redirect:/dashboard";
+            }
+            return "redirect:/";
         }
         return "auth/login";
     }
@@ -26,7 +35,12 @@ public class ViewController {
     @GetMapping("/register")
     public String register(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
-            return "redirect:/dashboard";
+            boolean isAdminOrManager = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_MANAGER"));
+            if (isAdminOrManager) {
+                return "redirect:/dashboard";
+            }
+            return "redirect:/";
         }
         return "auth/register";
     }
@@ -40,12 +54,26 @@ public class ViewController {
     }
 
     @GetMapping("/profile")
-    public String profile() {
+    public String profile(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isCustomer = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_CUSTOMER"));
+            if (isCustomer) {
+                return "customer/profile";
+            }
+        }
         return "auth/profile";
     }
 
     @GetMapping("/change-password")
-    public String changePassword() {
+    public String changePassword(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isCustomer = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_CUSTOMER"));
+            if (isCustomer) {
+                return "customer/change-password";
+            }
+        }
         return "auth/change-password";
     }
 
@@ -178,5 +206,26 @@ public class ViewController {
     @GetMapping("/dashboard/statistics")
     public String statistics() {
         return "dashboard/statistics";
+    }
+
+    // ==================== CUSTOMER PORTAL ====================
+    @GetMapping("/customer/menu")
+    public String customerMenu() {
+        return "customer/menu";
+    }
+
+    @GetMapping("/customer/cart")
+    public String customerCart() {
+        return "customer/cart";
+    }
+
+    @GetMapping("/customer/reservations")
+    public String customerReservations() {
+        return "customer/reservations";
+    }
+
+    @GetMapping("/customer/orders")
+    public String customerOrders() {
+        return "customer/orders";
     }
 }

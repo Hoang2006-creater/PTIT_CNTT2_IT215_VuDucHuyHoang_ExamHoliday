@@ -1,6 +1,7 @@
 package com.re.examholiday.service.impl;
 
 import com.re.examholiday.dto.response.ApiResponse;
+import com.re.examholiday.dto.response.CustomerMenuItemResponse;
 import com.re.examholiday.model.Category;
 import com.re.examholiday.model.MenuItem;
 import com.re.examholiday.repository.CategoryRepository;
@@ -9,6 +10,8 @@ import com.re.examholiday.service.CloudinaryService;
 import com.re.examholiday.service.MenuItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -146,5 +149,55 @@ public class MenuItemServiceImpl implements MenuItemService {
 
         menuItemRepository.delete(menuItem);
         return ApiResponse.success("Xóa món ăn thành công");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<Page<CustomerMenuItemResponse>> getCustomerMenuItems(Pageable pageable) {
+        Page<MenuItem> page = menuItemRepository.findByIsAvailable(true, pageable);
+        Page<CustomerMenuItemResponse> responsePage = page.map(this::mapToCustomerMenuItemResponse);
+        return ApiResponse.success("Lấy danh sách thực đơn thành công", responsePage);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<CustomerMenuItemResponse> getCustomerMenuItemDetail(Long id) {
+        MenuItem item = menuItemRepository.findById(id).orElse(null);
+        if (item == null || !Boolean.TRUE.equals(item.getIsAvailable())) {
+            return ApiResponse.error("Không tìm thấy món ăn");
+        }
+        return ApiResponse.success("Lấy chi tiết món ăn thành công", mapToCustomerMenuItemResponse(item));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<Page<CustomerMenuItemResponse>> searchCustomerMenuItems(String keyword, Pageable pageable) {
+        if (keyword == null) {
+            keyword = "";
+        }
+        Page<MenuItem> page = menuItemRepository.findByNameContainingIgnoreCaseAndIsAvailable(keyword, true, pageable);
+        Page<CustomerMenuItemResponse> responsePage = page.map(this::mapToCustomerMenuItemResponse);
+        return ApiResponse.success("Tìm kiếm thực đơn thành công", responsePage);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<Page<CustomerMenuItemResponse>> getCustomerMenuItemsByCategory(Integer categoryId, Pageable pageable) {
+        Page<MenuItem> page = menuItemRepository.findByCategoryIdAndIsAvailable(categoryId, true, pageable);
+        Page<CustomerMenuItemResponse> responsePage = page.map(this::mapToCustomerMenuItemResponse);
+        return ApiResponse.success("Lọc thực đơn theo danh mục thành công", responsePage);
+    }
+
+    private CustomerMenuItemResponse mapToCustomerMenuItemResponse(MenuItem item) {
+        if (item == null) return null;
+        return CustomerMenuItemResponse.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .price(item.getPrice())
+                .imageUrl(item.getImageUrl())
+                .categoryId(item.getCategory() != null ? item.getCategory().getId() : null)
+                .categoryName(item.getCategory() != null ? item.getCategory().getName() : null)
+                .build();
     }
 }

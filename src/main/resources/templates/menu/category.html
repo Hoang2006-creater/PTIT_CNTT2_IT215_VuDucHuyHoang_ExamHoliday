@@ -34,14 +34,13 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', async () => {
+                const tableBody = document.getElementById('category-table-body');
                 try {
-                    const response = await customFetch('/api/categories'); // Assuming endpoint exists
+                    const response = await customFetch('/api/categories');
                     if (response.ok) {
                         const result = await response.json();
-                        const tableBody = document.getElementById('category-table-body');
-                        tableBody.innerHTML = '';
-                        
                         if (result.success && result.data && result.data.length > 0) {
+                            tableBody.innerHTML = '';
                             result.data.forEach(c => {
                                 const tr = document.createElement('tr');
                                 tr.innerHTML = `
@@ -51,12 +50,13 @@
                                 `;
                                 tableBody.appendChild(tr);
                             });
-                        } else {
-                            tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-secondary py-4">Không tìm thấy danh mục nào.</td></tr>';
+                            return;
                         }
                     }
+                    tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-secondary py-4">Chưa có danh mục món ăn.</td></tr>';
                 } catch (e) {
                     console.error('Failed to load categories:', e);
+                    tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-danger py-4">Có lỗi xảy ra khi tải danh mục.</td></tr>';
                 }
             });
         </script>

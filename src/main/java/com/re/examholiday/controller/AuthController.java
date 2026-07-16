@@ -1,5 +1,6 @@
 package com.re.examholiday.controller;
 
+import com.re.examholiday.dto.request.UpdateProfileRequest;
 import com.re.examholiday.dto.request.ChangePasswordRequest;
 import com.re.examholiday.dto.request.LoginRequest;
 import com.re.examholiday.dto.request.OtpRequestDto;
@@ -83,6 +84,21 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
             Authentication authentication) {
         ApiResponse<UserProfileResponse> response = authService.getProfile(authentication.getName());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * PUT /api/auth/profile - Cập nhật hồ sơ cá nhân hiện tại
+     */
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
+            Authentication authentication,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        ApiResponse<UserProfileResponse> response = authService.updateProfile(
+                authentication.getName(), request);
+        if (!response.isSuccess()) {
+            return ResponseEntity.badRequest().body(response);
+        }
         return ResponseEntity.ok(response);
     }
 

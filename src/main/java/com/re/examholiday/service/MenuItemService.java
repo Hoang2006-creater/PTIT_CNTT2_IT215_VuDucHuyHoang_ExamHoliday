@@ -1,7 +1,10 @@
 package com.re.examholiday.service;
 
 import com.re.examholiday.dto.response.ApiResponse;
+import com.re.examholiday.dto.response.CustomerMenuItemResponse;
 import com.re.examholiday.model.MenuItem;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
@@ -13,4 +16,9 @@ public interface MenuItemService {
     ApiResponse<MenuItem> createMenuItem(String name, String description, BigDecimal price, Integer categoryId, Boolean available, MultipartFile image);
     ApiResponse<MenuItem> updateMenuItem(Long id, String name, String description, BigDecimal price, Integer categoryId, Boolean available, MultipartFile image);
     ApiResponse<Void> deleteMenuItem(Long id);
+
+    ApiResponse<Page<CustomerMenuItemResponse>> getCustomerMenuItems(Pageable pageable);
+    ApiResponse<CustomerMenuItemResponse> getCustomerMenuItemDetail(Long id);
+    ApiResponse<Page<CustomerMenuItemResponse>> searchCustomerMenuItems(String keyword, Pageable pageable);
+    ApiResponse<Page<CustomerMenuItemResponse>> getCustomerMenuItemsByCategory(Integer categoryId, Pageable pageable);
 }
