@@ -11,4 +11,7 @@ public interface ReservationService {
     ApiResponse<List<Reservation>> getActiveReservations(String username);
     ApiResponse<List<Reservation>> getReservationHistory(String username);
     ApiResponse<Void> cancelReservation(String username, Long reservationId);
+    ApiResponse<Reservation> confirmReservation(Long id);
+    ApiResponse<Reservation> completeReservation(Long id);
+    ApiResponse<Reservation> adminCancelReservation(Long id);
 }

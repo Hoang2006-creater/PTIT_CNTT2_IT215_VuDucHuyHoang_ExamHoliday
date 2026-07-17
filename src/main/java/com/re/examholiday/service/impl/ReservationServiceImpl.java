@@ -171,9 +171,61 @@ public class ReservationServiceImpl implements ReservationService {
             return ApiResponse.error("Không thể hủy lịch đặt bàn ở trạng thái " + reservation.getStatus());
         }
 
+        if (reservation.getReservationTime().isBefore(LocalDateTime.now())) {
+            return ApiResponse.error("Không thể hủy lịch đặt bàn khi đã qua giờ đặt.");
+        }
+
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
         log.info("Hủy đặt bàn thành công: customer='{}', reservationId='{}'", customer.getFullName(), reservationId);
         return ApiResponse.success("Hủy đặt bàn thành công");
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<Reservation> confirmReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+        if (reservation == null) {
+            return ApiResponse.error("Đặt bàn không tồn tại");
+        }
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+            return ApiResponse.error("Chỉ có thể xác nhận đặt bàn đang ở trạng thái CHỜ XÁC NHẬN");
+        }
+        reservation.setStatus(ReservationStatus.CONFIRMED);
+        Reservation saved = reservationRepository.save(reservation);
+        log.info("Xác nhận đặt bàn thành công: id='{}'", id);
+        return ApiResponse.success("Xác nhận đặt bàn thành công", saved);
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<Reservation> completeReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+        if (reservation == null) {
+            return ApiResponse.error("Đặt bàn không tồn tại");
+        }
+        if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
+            return ApiResponse.error("Chỉ có thể hoàn thành đặt bàn đang ở trạng thái ĐÃ XÁC NHẬN");
+        }
+        reservation.setStatus(ReservationStatus.COMPLETED);
+        Reservation saved = reservationRepository.save(reservation);
+        log.info("Hoàn thành đặt bàn thành công: id='{}'", id);
+        return ApiResponse.success("Đã hoàn thành đặt bàn dùng bữa", saved);
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<Reservation> adminCancelReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+        if (reservation == null) {
+            return ApiResponse.error("Đặt bàn không tồn tại");
+        }
+        if (reservation.getStatus() != ReservationStatus.PENDING && reservation.getStatus() != ReservationStatus.CONFIRMED) {
+            return ApiResponse.error("Không thể hủy đặt bàn ở trạng thái hiện tại (" + reservation.getStatus() + ")");
+        }
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        Reservation saved = reservationRepository.save(reservation);
+        log.info("Hủy đặt bàn bởi Admin thành công: id='{}'", id);
+        return ApiResponse.success("Hủy đặt bàn thành công", saved);
     }
 }
