@@ -65,6 +65,8 @@ public class SecurityConfig {
                                 "/accounts/**",
                                 "/employees/**",
                                 "/customers/**",
+                                "/customer/reservations",
+                                "/customer/menu",
                                 "/tables/**",
                                 "/reservations/**",
                                 "/menu/**",

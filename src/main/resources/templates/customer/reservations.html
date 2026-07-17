@@ -116,20 +116,18 @@
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     if (!getCookie('accessToken')) {
-                        showToast('Vui lòng đăng nhập trước khi đặt bàn.', 'warning');
+                        showToast('Bạn cần đăng nhập để sử dụng chức năng đặt bàn.', 'warning');
                         setTimeout(() => {
                             window.location.href = '/login';
-                        }, 1200);
+                        }, 2000);
                         return;
                     }
 
+                    const reservationDate = document.getElementById('bookDate').value;
+                    const reservationTimeStr = document.getElementById('bookTime').value;
                     const requestData = {
-                        fullName: document.getElementById('bookName').value.trim(),
-                        phone: document.getElementById('bookPhone').value.trim(),
-                        reservationDate: document.getElementById('bookDate').value,
-                        reservationTime: document.getElementById('bookTime').value,
-                        numberOfGuests: parseInt(document.getElementById('bookGuests').value),
-                        notes: document.getElementById('bookNotes').value.trim()
+                        reservationTime: `${reservationDate}T${reservationTimeStr}:00`,
+                        guestCount: parseInt(document.getElementById('bookGuests').value)
                     };
 
                     showLoading(true);
@@ -200,12 +198,22 @@
                                 actionBtn = '<span class="text-secondary small">-</span>';
                             }
 
+                            let dateStr = '-';
+                            let timeStr = '-';
+                            if (book.reservationTime && book.reservationTime.includes('T')) {
+                                const parts = book.reservationTime.split('T');
+                                dateStr = parts[0];
+                                timeStr = parts[1].substring(0, 5);
+                            } else if (book.reservationTime) {
+                                dateStr = book.reservationTime;
+                            }
+
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
                                 <td class="font-monospace">#${book.id}</td>
-                                <td>${book.reservationDate}</td>
-                                <td>${book.reservationTime}</td>
-                                <td>${book.numberOfGuests} người</td>
+                                <td>${dateStr}</td>
+                                <td>${timeStr}</td>
+                                <td>${book.guestCount} người</td>
                                 <td>${statusBadge}</td>
                                 <td class="text-end">${actionBtn}</td>
                             `;

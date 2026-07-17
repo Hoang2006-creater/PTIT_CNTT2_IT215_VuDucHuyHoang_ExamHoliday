@@ -47,12 +47,23 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+        String detailMessage = ex.getBindingResult().getAllErrors().stream()
+                .map(org.springframework.validation.ObjectError::getDefaultMessage)
+                .findFirst()
+                .orElse("Dữ liệu đầu vào không hợp lệ");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.<Map<String, String>>builder()
                         .success(false)
-                        .message("Dữ liệu đầu vào không hợp lệ")
+                        .message(detailMessage)
                         .data(errors)
                         .build());
+    }
+
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
+            org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("Định dạng dữ liệu gửi lên không hợp lệ hoặc bị thiếu."));
     }
 
     @ExceptionHandler(Exception.class)

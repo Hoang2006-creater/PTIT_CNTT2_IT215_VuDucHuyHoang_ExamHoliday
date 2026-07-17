@@ -264,7 +264,7 @@
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
                                 <td class="font-monospace">#${order.id}</td>
-                                <td>${order.table ? order.table.tableName : 'Không xác định'}</td>
+                                <td>${order.table ? order.table.tableNumber : 'Không xác định'}</td>
                                 <td>${timeStr || '-'}</td>
                                 <td class="text-gold font-weight-bold">${(order.totalAmount || 0).toLocaleString('vi-VN')}đ</td>
                                 <td>${statusBadge}</td>
@@ -294,7 +294,7 @@
                         const order = result.data;
                         
                         document.getElementById('orderDetailModalLabel').textContent = `Chi Tiết Hóa Đơn #${order.id}`;
-                        document.getElementById('detailOrderTable').textContent = order.table ? order.table.tableName : 'Không xác định';
+                        document.getElementById('detailOrderTable').textContent = order.table ? order.table.tableNumber : 'Không xác định';
                         
                         let timeStr = order.orderTime;
                         if (timeStr && timeStr.includes('T')) {

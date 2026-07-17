@@ -223,20 +223,18 @@
                     bookingForm.addEventListener('submit', async (e) => {
                         e.preventDefault();
                         if (!getCookie('accessToken')) {
-                            showToast('Vui lòng đăng nhập trước khi đặt bàn.', 'warning');
+                            showToast('Bạn cần đăng nhập để sử dụng chức năng đặt bàn.', 'warning');
                             setTimeout(() => {
                                 window.location.href = '/login';
-                            }, 1200);
+                            }, 2000);
                             return;
                         }
 
+                        const reservationDate = document.getElementById('bookingDate').value;
+                        const reservationTimeStr = document.getElementById('bookingTime').value;
                         const requestData = {
-                            fullName: document.getElementById('bookingName').value.trim(),
-                            phone: document.getElementById('bookingPhone').value.trim(),
-                            reservationDate: document.getElementById('bookingDate').value,
-                            reservationTime: document.getElementById('bookingTime').value,
-                            numberOfGuests: parseInt(document.getElementById('bookingGuests').value),
-                            notes: document.getElementById('bookingNotes').value.trim()
+                            reservationTime: `${reservationDate}T${reservationTimeStr}:00`,
+                            guestCount: parseInt(document.getElementById('bookingGuests').value)
                         };
 
                         showLoading(true);

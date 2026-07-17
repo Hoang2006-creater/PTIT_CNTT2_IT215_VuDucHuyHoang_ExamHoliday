@@ -268,7 +268,7 @@
                         activeTables.forEach(t => {
                             const option = document.createElement('option');
                             option.value = t.id;
-                            option.textContent = `${t.tableName} (${t.capacity} chỗ - ${t.status === 'AVAILABLE' ? 'Trống' : 'Đang bận'})`;
+                            option.textContent = `${t.tableNumber} (${t.capacity} chỗ - ${t.status === 'EMPTY' ? 'Trống' : (t.status === 'RESERVED' ? 'Đã đặt' : 'Đang bận')})`;
                             select.appendChild(option);
                         });
                     }
