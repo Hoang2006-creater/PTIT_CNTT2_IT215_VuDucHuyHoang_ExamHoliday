@@ -290,8 +290,10 @@
                         activePromotions.forEach(promo => {
                             const option = document.createElement('option');
                             option.value = promo.id;
-                            const desc = promo.discountType === 'PERCENT' ? `${promo.discountValue}%` : `${promo.discountValue.toLocaleString('vi-VN')}đ`;
-                            option.textContent = `${promo.name} (Giảm ${desc})`;
+                            const desc = (promo.discountPercentage && promo.discountPercentage > 0)
+                                ? `${promo.discountPercentage}%`
+                                : `${(promo.discountValue || 0).toLocaleString('vi-VN')}đ`;
+                            option.textContent = `${promo.code} (Giảm ${desc})`;
                             select.appendChild(option);
                         });
                     }
@@ -331,9 +333,9 @@
             if (selectedPromoId) {
                 const promo = activePromotions.find(p => p.id.toString() === selectedPromoId);
                 if (promo) {
-                    if (promo.discountType === 'PERCENT') {
-                        calculatedDiscount += (subtotal * promo.discountValue) / 100;
-                    } else {
+                    if (promo.discountPercentage && promo.discountPercentage > 0) {
+                        calculatedDiscount += (subtotal * promo.discountPercentage) / 100;
+                    } else if (promo.discountValue) {
                         calculatedDiscount += promo.discountValue;
                     }
                 }

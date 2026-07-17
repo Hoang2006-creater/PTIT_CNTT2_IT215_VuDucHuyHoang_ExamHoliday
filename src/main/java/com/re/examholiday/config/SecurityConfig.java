@@ -108,7 +108,7 @@ public class SecurityConfig {
                         // Admin & Manager for modifying
                         .requestMatchers("/api/menu-items/**").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers("/api/categories/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/promotions/**").hasRole("MANAGER")
+                        .requestMatchers("/api/promotions/**").hasAnyRole("ADMIN", "MANAGER")
 
                         // Cashier & Admin for modifying
                         .requestMatchers("/api/payments/**").hasAnyRole("CASHIER", "ADMIN")
