@@ -8,23 +8,27 @@
                     <h3 class="text-white mb-4"><i class="bi bi-calendar-plus text-primary me-2"></i>Đặt bàn ăn trước</h3>
                     <hr class="border-secondary mb-4">
                     
-                    <form id="create-reservation-form">
+                    <form id="create-reservation-form" novalidate>
                         <div class="row g-3">
                             <div class="col-sm-6">
                                 <label for="customerName" class="form-label text-secondary small">Tên khách hàng đặt bàn</label>
-                                <input type="text" class="form-control form-control-glass" id="customerName" required>
+                                <input type="text" class="form-control form-control-glass" id="customerName">
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="col-sm-6">
                                 <label for="customerPhone" class="form-label text-secondary small">Số điện thoại liên hệ</label>
-                                <input type="text" class="form-control form-control-glass" id="customerPhone" required>
+                                <input type="text" class="form-control form-control-glass" id="customerPhone">
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="col-sm-6">
                                 <label for="guestCount" class="form-label text-secondary small">Số lượng khách dự kiến</label>
-                                <input type="number" class="form-control form-control-glass" id="guestCount" value="2" required>
+                                <input type="text" class="form-control form-control-glass" id="guestCount" value="2">
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="col-sm-6">
                                 <label for="reservationTime" class="form-label text-secondary small">Thời gian hẹn (ngày & giờ)</label>
-                                <input type="datetime-local" class="form-control form-control-glass" id="reservationTime" required>
+                                <input type="datetime-local" class="form-control form-control-glass" id="reservationTime">
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="col-sm-6">
                                 <label for="tableId" class="form-label text-secondary small">Chọn bàn ăn (không bắt buộc)</label>
@@ -63,36 +67,114 @@
                 } catch (e) {
                     console.error('Failed to load table list for reservation form:', e);
                 }
-            });
 
-            document.getElementById('create-reservation-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const customerName = document.getElementById('customerName').value;
-                const customerPhone = document.getElementById('customerPhone').value;
-                const guestCount = parseInt(document.getElementById('guestCount').value);
-                const reservationTime = document.getElementById('reservationTime').value;
-                const val = document.getElementById('tableId').value;
-                const tableId = val ? parseInt(val) : null;
-                
-                showLoading(true);
-                try {
-                    const response = await customFetch('/api/reservations', {
-                        method: 'POST',
-                        body: JSON.stringify({ customerName, customerPhone, guestCount, reservationTime, tableId })
+                // Real-time input clearing
+                const form = document.getElementById('create-reservation-form');
+                if (form) {
+                    form.querySelectorAll('.form-control-glass, .form-select-glass').forEach(input => {
+                        input.addEventListener('input', () => clearInputError(input));
+                        input.addEventListener('change', () => clearInputError(input));
                     });
-                    showLoading(false);
-                    const result = await response.json();
-                    if (response.ok && result.success) {
-                        showToast('Đặt bàn thành công!', 'success');
-                        setTimeout(() => { window.location.href = '/reservations'; }, 1500);
-                    } else {
-                        showToast(result.message || 'Lỗi khi đặt bàn.', 'error');
-                    }
-                } catch (err) {
-                    showLoading(false);
-                    showToast('Lỗi kết nối máy chủ.', 'error');
+
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        clearValidationErrors(form);
+
+                        const customerName = document.getElementById('customerName').value.trim();
+                        const customerPhone = document.getElementById('customerPhone').value.trim();
+                        const guestCountStr = document.getElementById('guestCount').value.trim();
+                        const reservationTime = document.getElementById('reservationTime').value;
+                        const val = document.getElementById('tableId').value;
+                        const tableId = val ? parseInt(val) : null;
+                        
+                        let isValid = true;
+                        if (!customerName) {
+                            showFieldError('customerName', 'Tên khách hàng không được để trống');
+                            isValid = false;
+                        }
+
+                        const phonePattern = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+                        if (!customerPhone) {
+                            showFieldError('customerPhone', 'Số điện thoại không được để trống');
+                            isValid = false;
+                        } else if (!phonePattern.test(customerPhone)) {
+                            showFieldError('customerPhone', 'Số điện thoại phải gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09)');
+                            isValid = false;
+                        }
+
+                        const guestCount = parseInt(guestCountStr);
+                        if (!guestCountStr || isNaN(guestCount) || guestCount <= 0) {
+                            showFieldError('guestCount', 'Số lượng khách phải là số nguyên dương');
+                            isValid = false;
+                        }
+
+                        if (!reservationTime) {
+                            showFieldError('reservationTime', 'Vui lòng chọn thời gian hẹn');
+                            isValid = false;
+                        }
+
+                        if (!isValid) return;
+
+                        showLoading(true);
+                        try {
+                            const response = await customFetch('/api/reservations', {
+                                method: 'POST',
+                                body: JSON.stringify({ customerName, customerPhone, guestCount, reservationTime, tableId })
+                            });
+                            showLoading(false);
+                            const result = await response.json();
+                            if (response.ok && result.success) {
+                                showToast('Đặt bàn thành công!', 'success');
+                                setTimeout(() => { window.location.href = '/reservations'; }, 1500);
+                            } else {
+                                if (result.data && typeof result.data === 'object') {
+                                    Object.keys(result.data).forEach(field => {
+                                        showFieldError(field, result.data[field]);
+                                    });
+                                } else {
+                                    showToast(result.message || 'Lỗi khi đặt bàn.', 'error');
+                                }
+                            }
+                        } catch (err) {
+                            showLoading(false);
+                            showToast('Lỗi kết nối máy chủ.', 'error');
+                        }
+                    });
                 }
             });
+
+            function showFieldError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.classList.add('is-invalid');
+                    const parent = field.closest('.col-sm-6');
+                    if (parent) {
+                        const feedback = parent.querySelector('.invalid-feedback');
+                        if (feedback) {
+                            feedback.textContent = message;
+                            feedback.style.display = 'block';
+                        }
+                    }
+                }
+            }
+
+            function clearInputError(input) {
+                input.classList.remove('is-invalid');
+                const parent = input.closest('.col-sm-6');
+                if (parent) {
+                    const feedback = parent.querySelector('.invalid-feedback');
+                    if (feedback) {
+                        feedback.textContent = '';
+                        feedback.style.display = 'none';
+                    }
+                }
+            }
+
+            function clearValidationErrors(form) {
+                form.querySelectorAll('.form-control-glass, .form-select-glass').forEach(input => {
+                    clearInputError(input);
+                });
+            }
         </script>
     </div>
 </body>

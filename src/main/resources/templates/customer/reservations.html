@@ -18,28 +18,32 @@
                     <div class="col-12 col-lg-5">
                         <div class="glass-card p-4 rounded-4 border border-secondary">
                             <h4 class="text-white font-serif mb-4"><i class="bi bi-calendar-check text-gold me-2"></i>Tạo Lịch Đặt Mới</h4>
-                            <form id="mainBookingForm">
+                            <form id="mainBookingForm" novalidate>
                                 <div class="mb-3">
                                     <label for="bookName" class="form-label text-white-50 small">Họ và Tên</label>
-                                    <input type="text" class="form-control form-control-glass" id="bookName" placeholder="Nhập họ và tên..." required>
+                                    <input type="text" class="form-control form-control-glass" id="bookName" placeholder="Nhập họ và tên...">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="bookPhone" class="form-label text-white-50 small">Số Điện Thoại</label>
-                                    <input type="tel" class="form-control form-control-glass" id="bookPhone" placeholder="Nhập số điện thoại..." required>
+                                    <input type="text" class="form-control form-control-glass" id="bookPhone" placeholder="Nhập số điện thoại...">
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 <div class="row g-3 mb-3">
                                     <div class="col-6">
                                         <label for="bookDate" class="form-label text-white-50 small">Ngày Đến</label>
-                                        <input type="date" class="form-control form-control-glass" id="bookDate" required>
+                                        <input type="date" class="form-control form-control-glass" id="bookDate">
+                                        <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-6">
                                         <label for="bookTime" class="form-label text-white-50 small">Giờ Đến</label>
-                                        <input type="time" class="form-control form-control-glass" id="bookTime" required>
+                                        <input type="time" class="form-control form-control-glass" id="bookTime">
+                                        <div class="invalid-feedback"></div>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="bookGuests" class="form-label text-white-50 small">Số Lượng Khách</label>
-                                    <select class="form-select form-control-glass" id="bookGuests" required>
+                                    <select class="form-select form-control-glass" id="bookGuests">
                                         <option value="1">1 người</option>
                                         <option value="2" selected>2 người</option>
                                         <option value="3">3 người</option>
@@ -48,6 +52,7 @@
                                         <option value="8">8 người</option>
                                         <option value="10">10+ người</option>
                                     </select>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 <div class="mb-4">
                                     <label for="bookNotes" class="form-label text-white-50 small">Ghi Chú</label>
@@ -89,6 +94,7 @@
                     </div>
                 </div>
             </div>
+        </section>
 
 
     <!-- Script integrations -->
@@ -110,11 +116,18 @@
                 `;
             }
 
-            // Bind Form Submission
+            // Real-time error clearing
             const form = document.getElementById('mainBookingForm');
             if (form) {
+                form.querySelectorAll('.form-control-glass, .form-select').forEach(input => {
+                    input.addEventListener('input', () => clearInputError(input));
+                    input.addEventListener('change', () => clearInputError(input));
+                });
+
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    clearValidationErrors(form);
+
                     if (!getCookie('accessToken')) {
                         showToast('Bạn cần đăng nhập để sử dụng chức năng đặt bàn.', 'warning');
                         setTimeout(() => {
@@ -123,11 +136,49 @@
                         return;
                     }
 
+                    const name = document.getElementById('bookName').value.trim();
+                    const phone = document.getElementById('bookPhone').value.trim();
                     const reservationDate = document.getElementById('bookDate').value;
                     const reservationTimeStr = document.getElementById('bookTime').value;
+                    const guestCountVal = document.getElementById('bookGuests').value;
+
+                    let isValid = true;
+                    if (!name) {
+                        showFieldError('bookName', 'Vui lòng nhập họ và tên');
+                        isValid = false;
+                    }
+                    
+                    const phonePattern = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+                    if (!phone) {
+                        showFieldError('bookPhone', 'Vui lòng nhập số điện thoại');
+                        isValid = false;
+                    } else if (!phonePattern.test(phone)) {
+                        showFieldError('bookPhone', 'Số điện thoại không hợp lệ (10 chữ số)');
+                        isValid = false;
+                    }
+
+                    if (!reservationDate) {
+                        showFieldError('bookDate', 'Vui lòng chọn ngày đến');
+                        isValid = false;
+                    }
+
+                    if (!reservationTimeStr) {
+                        showFieldError('bookTime', 'Vui lòng chọn giờ đến');
+                        isValid = false;
+                    }
+
+                    if (!guestCountVal) {
+                        showFieldError('bookGuests', 'Vui lòng chọn số lượng khách');
+                        isValid = false;
+                    }
+
+                    if (!isValid) return;
+
                     const requestData = {
+                        customerName: name,
+                        customerPhone: phone,
                         reservationTime: `${reservationDate}T${reservationTimeStr}:00`,
-                        guestCount: parseInt(document.getElementById('bookGuests').value)
+                        guestCount: parseInt(guestCountVal)
                     };
 
                     showLoading(true);
@@ -143,7 +194,13 @@
                             form.reset();
                             await fetchReservationsHistory();
                         } else {
-                            showToast(result.message || 'Đặt bàn thất bại.', 'error');
+                            if (result.data && typeof result.data === 'object') {
+                                Object.keys(result.data).forEach(field => {
+                                    showFieldError(field, result.data[field]);
+                                });
+                            } else {
+                                showToast(result.message || 'Đặt bàn thất bại.', 'error');
+                            }
                         }
                     } catch (err) {
                         showLoading(false);
@@ -152,6 +209,39 @@
                 });
             }
         });
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('is-invalid');
+                const parent = field.closest('.mb-3, .col-6');
+                if (parent) {
+                    const feedback = parent.querySelector('.invalid-feedback');
+                    if (feedback) {
+                        feedback.textContent = message;
+                        feedback.style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        function clearInputError(input) {
+            input.classList.remove('is-invalid');
+            const parent = input.closest('.mb-3, .col-6');
+            if (parent) {
+                const feedback = parent.querySelector('.invalid-feedback');
+                if (feedback) {
+                    feedback.textContent = '';
+                    feedback.style.display = 'none';
+                }
+            }
+        }
+
+        function clearValidationErrors(form) {
+            form.querySelectorAll('.form-control-glass, .form-select').forEach(input => {
+                clearInputError(input);
+            });
+        }
 
         async function loadUserProfileInfo() {
             try {

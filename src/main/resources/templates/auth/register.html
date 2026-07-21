@@ -18,14 +18,14 @@
             <div class="auth-subtitle">Đăng ký tài khoản khách hàng mới</div>
 
             <!-- Registration Form -->
-            <form id="register-form" class="auth-form mt-4">
+            <form id="register-form" class="auth-form mt-4" novalidate>
                 
                 <!-- Username -->
                 <div class="mb-3">
                     <label for="reg-username" class="form-label">Tên đăng nhập</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" class="form-control form-control-glass" id="reg-username" placeholder="Nhập tên đăng nhập..." required>
+                        <input type="text" class="form-control form-control-glass" id="reg-username" placeholder="Nhập tên đăng nhập...">
                     </div>
                     <div class="invalid-feedback"></div>
                 </div>
@@ -45,7 +45,7 @@
                     <label for="reg-email" class="form-label">Địa chỉ Email</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input type="email" class="form-control form-control-glass" id="reg-email" placeholder="example@domain.com..." required>
+                        <input type="text" class="form-control form-control-glass" id="reg-email" placeholder="example@domain.com...">
                     </div>
                     <div class="invalid-feedback"></div>
                 </div>
@@ -55,7 +55,7 @@
                     <label for="reg-phone" class="form-label">Số điện thoại</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-phone"></i></span>
-                        <input type="text" class="form-control form-control-glass" id="reg-phone" placeholder="Nhập số điện thoại..." required>
+                        <input type="text" class="form-control form-control-glass" id="reg-phone" placeholder="Nhập số điện thoại...">
                     </div>
                     <div class="invalid-feedback"></div>
                 </div>
@@ -65,7 +65,7 @@
                     <label for="reg-password" class="form-label">Mật khẩu</label>
                     <div class="password-toggle-container input-group">
                         <span class="input-group-text"><i class="bi bi-key"></i></span>
-                        <input type="password" class="form-control form-control-glass" id="reg-password" placeholder="Nhập mật khẩu..." required>
+                        <input type="password" class="form-control form-control-glass" id="reg-password" placeholder="Nhập mật khẩu...">
                         <button type="button" class="password-toggle-btn" id="toggleRegPassword">
                             <i class="bi bi-eye"></i>
                         </button>
@@ -104,7 +104,7 @@
                     <label for="reg-confirm-password" class="form-label">Xác nhận mật khẩu</label>
                     <div class="password-toggle-container input-group">
                         <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                        <input type="password" class="form-control form-control-glass" id="reg-confirm-password" placeholder="Xác nhận lại mật khẩu..." required>
+                        <input type="password" class="form-control form-control-glass" id="reg-confirm-password" placeholder="Xác nhận lại mật khẩu...">
                         <button type="button" class="password-toggle-btn" id="toggleConfirmPassword">
                             <i class="bi bi-eye"></i>
                         </button>

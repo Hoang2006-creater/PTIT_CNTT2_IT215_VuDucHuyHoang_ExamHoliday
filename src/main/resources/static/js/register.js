@@ -24,7 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Real-time Password Strength Check
+    // 2. Real-time Password Strength & Error Clearing
+    if (registerForm) {
+        registerForm.querySelectorAll('.form-control-glass').forEach(input => {
+            input.addEventListener('input', () => {
+                input.classList.remove('is-invalid');
+                const inputGroup = input.closest('.input-group');
+                if (inputGroup) inputGroup.classList.remove('is-invalid');
+                const parent = input.closest('.mb-3');
+                if (parent) {
+                    const feedback = parent.querySelector('.invalid-feedback');
+                    if (feedback) {
+                        feedback.textContent = '';
+                        feedback.style.display = 'none';
+                    }
+                }
+            });
+        });
+    }
+
     if (passwordInput) {
         passwordInput.addEventListener('input', () => {
             const val = passwordInput.value;
