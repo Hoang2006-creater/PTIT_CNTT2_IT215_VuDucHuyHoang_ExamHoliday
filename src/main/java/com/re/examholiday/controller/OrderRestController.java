@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import com.re.examholiday.model.OrderDetail;
+import com.re.examholiday.model.enumeration.OrderItemStatus;
+import com.re.examholiday.repository.OrderDetailRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class OrderRestController {
 
     private final OrderRepository orderRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> getOrders(
@@ -119,5 +123,49 @@ public class OrderRestController {
             return ResponseEntity.badRequest().body(ApiResponse.error("Không tìm thấy đơn hàng"));
         }
         return ResponseEntity.ok(ApiResponse.success("Lấy chi tiết đơn hàng thành công", order));
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<Order>> updateOrderStatus(
+            @PathVariable Long id,
+            @RequestParam OrderStatus status) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Không tìm thấy đơn hàng"));
+        }
+        order.setStatus(status);
+        Order saved = orderRepository.save(order);
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái đơn hàng thành công", saved));
+    }
+
+    @PutMapping("/details/{detailId}/status")
+    public ResponseEntity<ApiResponse<OrderDetail>> updateOrderDetailStatus(
+            @PathVariable Long detailId,
+            @RequestParam OrderItemStatus status) {
+        OrderDetail orderDetail = orderDetailRepository.findById(detailId).orElse(null);
+        if (orderDetail == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Không tìm thấy món trong đơn hàng"));
+        }
+        orderDetail.setStatus(status);
+        OrderDetail saved = orderDetailRepository.save(orderDetail);
+
+        // Auto transition Order to COMPLETED if all order items are SERVED (or CANCELLED)
+        Order order = orderDetail.getOrder();
+        if (order != null) {
+            List<OrderDetail> allDetails = orderDetailRepository.findByOrderId(order.getId());
+            if (allDetails != null && !allDetails.isEmpty()) {
+                boolean allServedOrCancelled = allDetails.stream()
+                        .allMatch(d -> d.getStatus() == OrderItemStatus.SERVED || d.getStatus() == OrderItemStatus.CANCELLED);
+                boolean hasServed = allDetails.stream()
+                        .anyMatch(d -> d.getStatus() == OrderItemStatus.SERVED);
+                
+                if (allServedOrCancelled && hasServed) {
+                    order.setStatus(OrderStatus.COMPLETED);
+                    orderRepository.save(order);
+                }
+            }
+        }
+
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái món thành công", saved));
     }
 }

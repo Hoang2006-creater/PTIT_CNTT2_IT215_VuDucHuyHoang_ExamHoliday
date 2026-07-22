@@ -31,8 +31,37 @@
             </div>
         </div>
 
+        <!-- Table Action Modal -->
+        <div class="modal fade" id="tableModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark border-secondary text-white">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title"><i class="bi bi-grid-fill text-primary me-2"></i>Quản lý bàn <span id="modal-table-num" class="text-primary font-weight-bold"></span></h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-secondary mb-2">Trạng thái hiện tại: <span id="modal-current-status" class="badge"></span></p>
+                        <p class="text-secondary mb-4">Sức chứa: <span id="modal-table-capacity" class="text-white"></span> người</p>
+                        
+                        <label class="form-label text-secondary small font-weight-bold">Chuyển trạng thái bàn:</label>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-success" onclick="changeTableStatus('EMPTY')"><i class="bi bi-check-circle me-2"></i>Chuyển thành TRỐNG (EMPTY)</button>
+                            <button class="btn btn-outline-danger" onclick="changeTableStatus('OCCUPIED')"><i class="bi bi-person-fill me-2"></i>Chuyển thành ĐANG DÙNG (OCCUPIED)</button>
+                            <button class="btn btn-outline-warning text-dark" onclick="changeTableStatus('RESERVED')"><i class="bi bi-calendar-check me-2"></i>Chuyển thành ĐÃ ĐẶT TRƯỚC (RESERVED)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
-            document.addEventListener('DOMContentLoaded', async () => {
+            let selectedTableId = null;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                loadTableMap();
+            });
+
+            async function loadTableMap() {
                 try {
                     const response = await customFetch('/api/tables');
                     if (response.ok) {
@@ -46,22 +75,25 @@
                                 col.className = 'col-6 col-sm-4 col-md-3 col-lg-2';
                                 
                                 let statusBg = 'bg-success';
-                                if (t.status === 'OCCUPIED') statusBg = 'bg-danger';
-                                else if (t.status === 'RESERVED') statusBg = 'bg-warning';
+                                let statusLabel = 'Trống';
+                                if (t.status === 'OCCUPIED') {
+                                    statusBg = 'bg-danger';
+                                    statusLabel = 'Đang dùng';
+                                } else if (t.status === 'RESERVED') {
+                                    statusBg = 'bg-warning text-dark';
+                                    statusLabel = 'Đã đặt';
+                                }
                                 
                                 col.innerHTML = `
-                                    <div class="card h-100 bg-dark border-secondary p-3 text-center">
-                                        <div class="d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; border-radius: 50%; font-size: 24px; color: white;" class="${statusBg}">
-                                            <i class="bi bi-hash"></i>${t.tableNumber.replace(/\D/g, '')}
+                                    <div class="card h-100 bg-dark border-secondary p-3 text-center style-card-table" onclick="openTableModal(${t.id}, '${t.tableNumber}', '${t.status}', ${t.capacity})" style="cursor: pointer; transition: transform 0.2s;">
+                                        <div class="d-flex align-items-center justify-content-center mx-auto mb-3 ${statusBg}" style="width: 60px; height: 60px; border-radius: 50%; font-size: 20px; font-weight: bold; color: white;">
+                                            #${t.tableNumber.replace(/\D/g, '') || t.id}
                                         </div>
                                         <h6 class="text-white mb-1">${t.tableNumber}</h6>
                                         <div class="text-secondary small mb-2">Sức chứa: ${t.capacity} người</div>
                                         <span class="badge ${statusBg}">${t.status}</span>
                                     </div>
                                 `;
-                                
-                                // Make the circular icon have the status class
-                                col.querySelector('.d-flex').classList.add(statusBg);
                                 grid.appendChild(col);
                             });
                         } else {
@@ -71,7 +103,39 @@
                 } catch (e) {
                     console.error('Failed to load table grid:', e);
                 }
-            });
+            }
+
+            function openTableModal(id, tableNumber, status, capacity) {
+                selectedTableId = id;
+                document.getElementById('modal-table-num').textContent = tableNumber;
+                document.getElementById('modal-table-capacity').textContent = capacity;
+                
+                const badge = document.getElementById('modal-current-status');
+                badge.textContent = status;
+                badge.className = `badge bg-${status === 'EMPTY' ? 'success' : (status === 'OCCUPIED' ? 'danger' : 'warning text-dark')}`;
+
+                const myModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('tableModal'));
+                myModal.show();
+            }
+
+            async function changeTableStatus(newStatus) {
+                if (!selectedTableId) return;
+                try {
+                    const response = await customFetch(`/api/tables/${selectedTableId}/status?status=${newStatus}`, {
+                        method: 'PUT'
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast(result.message || 'Cập nhật trạng thái bàn ăn thành công!');
+                        bootstrap.Modal.getInstance(document.getElementById('tableModal')).hide();
+                        await loadTableMap();
+                    } else {
+                        showToast(result.message || 'Cập nhật trạng thái thất bại', 'error');
+                    }
+                } catch (e) {
+                    showToast('Lỗi kết nối máy chủ', 'error');
+                }
+            }
         </script>
     </div>
 </body>

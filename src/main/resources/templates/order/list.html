@@ -223,17 +223,23 @@
                                 const employeeName = o.employee ? o.employee.fullName : '<span class="text-secondary">Chưa giao</span>';
                                 const tableNum = o.table ? o.table.tableNumber : '<span class="text-secondary">Mang về</span>';
                                 
+                                let actionsHtml = `<button class="btn btn-outline-info btn-xs rounded-pill px-2 py-0 me-1" onclick="viewOrderDetail(${o.id})" title="Xem chi tiết" style="font-size:11px;"><i class="bi bi-eye"></i> Xem</button>`;
+                                if (o.status === 'OPEN') {
+                                    actionsHtml += `
+                                        <button class="btn btn-outline-success btn-xs rounded-pill px-2 py-0 me-1" onclick="updateOrderStatus(${o.id}, 'COMPLETED')" style="font-size:11px;" title="Hoàn thành đơn hàng"><i class="bi bi-check2-all"></i> Hoàn thành</button>
+                                        <button class="btn btn-outline-danger btn-xs rounded-pill px-2 py-0" onclick="updateOrderStatus(${o.id}, 'CANCELLED')" style="font-size:11px;" title="Hủy đơn hàng"><i class="bi bi-x-circle"></i> Hủy</button>
+                                    `;
+                                }
+
                                 tr.innerHTML = `
                                     <td>#${o.id}</td>
                                     <td class="text-white font-weight-bold">${tableNum}</td>
                                     <td>${dt}</td>
-                                    <td class="text-success font-weight-bold">${o.totalAmount.toLocaleString('vi-VN')}đ</td>
+                                    <td class="text-success font-weight-bold">${o.totalAmount ? o.totalAmount.toLocaleString('vi-VN') : 0}đ</td>
                                     <td><span class="badge bg-${o.status === 'COMPLETED' ? 'success' : (o.status === 'OPEN' ? 'primary' : 'danger')}">${o.status}</span></td>
                                     <td>${customerName}</td>
                                     <td>${employeeName}</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-outline-info btn-xs" onclick="viewOrderDetail(${o.id})" title="Xem chi tiết"><i class="bi bi-eye"></i></button>
-                                    </td>
+                                    <td class="text-end">${actionsHtml}</td>
                                 `;
                                 tableBody.appendChild(tr);
                             });
@@ -332,13 +338,39 @@
                                 o.orderDetails.forEach(item => {
                                     const tr = document.createElement('tr');
                                     const itemTotal = item.quantity * item.unitPrice;
+
+                                    let itemStatusHtml = '';
+                                    if (item.status === 'ORDERED') {
+                                        itemStatusHtml = `
+                                            <span class="badge bg-warning text-dark me-1">ORDERED</span>
+                                            <button class="btn btn-outline-warning btn-xs rounded-pill px-2 py-0 me-1" onclick="updateOrderItemStatus(${item.id}, 'COOKING', ${o.id})" style="font-size:11px;" title="Chuyển sang Đang chế biến"><i class="bi bi-fire"></i> Chế biến</button>
+                                            <button class="btn btn-outline-danger btn-xs rounded-pill px-2 py-0" onclick="updateOrderItemStatus(${item.id}, 'CANCELLED', ${o.id})" style="font-size:11px;" title="Hủy món"><i class="bi bi-x-circle"></i> Hủy</button>
+                                        `;
+                                    } else if (item.status === 'COOKING') {
+                                        itemStatusHtml = `
+                                            <span class="badge me-1" style="background-color: #fd7e14; color: #fff;">COOKING</span>
+                                            <button class="btn btn-outline-info btn-xs rounded-pill px-2 py-0" onclick="updateOrderItemStatus(${item.id}, 'SERVED', ${o.id})" style="font-size:11px;" title="Chuyển sang Đã phục vụ"><i class="bi bi-check2"></i> Phục vụ</button>
+                                        `;
+                                    } else if (item.status === 'COOKED') {
+                                        itemStatusHtml = `
+                                            <span class="badge bg-info text-dark me-1">COOKED</span>
+                                            <button class="btn btn-outline-success btn-xs rounded-pill px-2 py-0" onclick="updateOrderItemStatus(${item.id}, 'SERVED', ${o.id})" style="font-size:11px;" title="Chuyển sang Đã phục vụ"><i class="bi bi-check2"></i> Phục vụ</button>
+                                        `;
+                                    } else if (item.status === 'SERVED') {
+                                        itemStatusHtml = '<span class="badge bg-success">SERVED</span>';
+                                    } else if (item.status === 'CANCELLED') {
+                                        itemStatusHtml = '<span class="badge bg-danger">CANCELLED</span>';
+                                    } else {
+                                        itemStatusHtml = `<span class="badge bg-secondary">${item.status}</span>`;
+                                    }
+
                                     tr.innerHTML = `
                                         <td class="text-white font-weight-bold">${item.menuItemName}</td>
                                         <td class="text-center">${item.quantity}</td>
                                         <td class="text-end">${item.unitPrice.toLocaleString('vi-VN')}đ</td>
                                         <td class="text-end text-success font-weight-bold">${itemTotal.toLocaleString('vi-VN')}đ</td>
                                         <td class="text-secondary">${item.notes || '-'}</td>
-                                        <td><span class="badge bg-${item.status === 'SERVED' ? 'success' : (item.status === 'CANCELLED' ? 'danger' : 'warning')}">${item.status}</span></td>
+                                        <td>${itemStatusHtml}</td>
                                     `;
                                     itemsBody.appendChild(tr);
                                 });
@@ -349,12 +381,48 @@
                             document.getElementById('modal-total-amount').textContent = o.totalAmount.toLocaleString('vi-VN') + 'đ';
 
                             // Show Modal
-                            const myModal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+                            const modalEl = document.getElementById('orderDetailModal');
+                            const myModal = bootstrap.Modal.getOrCreateInstance(modalEl);
                             myModal.show();
                         }
                     }
                 } catch (e) {
                     console.error('Failed to load order details:', e);
+                }
+            }
+
+            async function updateOrderItemStatus(detailId, status, orderId) {
+                try {
+                    const response = await customFetch(`/api/orders/details/${detailId}/status?status=${status}`, {
+                        method: 'PUT'
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast(result.message || 'Cập nhật trạng thái món thành công!', 'success');
+                        await viewOrderDetail(orderId);
+                        await loadOrders();
+                    } else {
+                        showToast(result.message || 'Cập nhật thất bại.', 'error');
+                    }
+                } catch (e) {
+                    showToast('Không thể kết nối đến máy chủ.', 'error');
+                }
+            }
+
+            async function updateOrderStatus(orderId, status) {
+                try {
+                    const response = await customFetch(`/api/orders/${orderId}/status?status=${status}`, {
+                        method: 'PUT'
+                    });
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast(result.message || 'Cập nhật trạng thái đơn hàng thành công!', 'success');
+                        await loadOrders();
+                    } else {
+                        showToast(result.message || 'Cập nhật thất bại.', 'error');
+                    }
+                } catch (e) {
+                    showToast('Không thể kết nối đến máy chủ.', 'error');
                 }
             }
         </script>

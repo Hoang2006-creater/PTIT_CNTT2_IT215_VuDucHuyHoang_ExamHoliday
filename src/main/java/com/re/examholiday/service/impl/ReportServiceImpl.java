@@ -120,8 +120,61 @@ public class ReportServiceImpl implements ReportService {
         .filter(java.util.Objects::nonNull)
         .collect(Collectors.toList());
 
+        // 6. Calculate monthly comparisons
+        LocalDate now = LocalDate.now();
+        LocalDateTime thisMonthStart = now.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime thisMonthEnd = now.atTime(LocalTime.MAX);
+
+        LocalDateTime lastMonthStart = now.minusMonths(1).withDayOfMonth(1).atStartOfDay();
+        LocalDateTime lastMonthEnd = now.withDayOfMonth(1).minusDays(1).atTime(LocalTime.MAX);
+
+        BigDecimal thisMonthRevenueObj = paymentRepository.sumRevenueByTimeRange(PaymentStatus.SUCCESS, thisMonthStart, thisMonthEnd);
+        BigDecimal thisMonthRevenue = thisMonthRevenueObj != null ? thisMonthRevenueObj : BigDecimal.ZERO;
+
+        BigDecimal lastMonthRevenueObj = paymentRepository.sumRevenueByTimeRange(PaymentStatus.SUCCESS, lastMonthStart, lastMonthEnd);
+        BigDecimal lastMonthRevenue = lastMonthRevenueObj != null ? lastMonthRevenueObj : BigDecimal.ZERO;
+
+        double revenueGrowthPercent = 0.0;
+        if (lastMonthRevenue.compareTo(BigDecimal.ZERO) > 0) {
+            revenueGrowthPercent = thisMonthRevenue.subtract(lastMonthRevenue)
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(lastMonthRevenue, 2, java.math.RoundingMode.HALF_UP)
+                    .doubleValue();
+        } else if (thisMonthRevenue.compareTo(BigDecimal.ZERO) > 0) {
+            revenueGrowthPercent = 100.0;
+        }
+
+        // Monthly Order Counts
+        List<com.re.examholiday.model.Order> allOrders = orderRepository.findAll();
+        long thisMonthOrderCount = allOrders.stream()
+                .filter(o -> o.getOrderTime() != null && !o.getOrderTime().isBefore(thisMonthStart) && !o.getOrderTime().isAfter(thisMonthEnd))
+                .count();
+
+        long lastMonthOrderCount = allOrders.stream()
+                .filter(o -> o.getOrderTime() != null && !o.getOrderTime().isBefore(lastMonthStart) && !o.getOrderTime().isAfter(lastMonthEnd))
+                .count();
+
+        double orderGrowthPercent = 0.0;
+        if (lastMonthOrderCount > 0) {
+            orderGrowthPercent = Math.round(((double)(thisMonthOrderCount - lastMonthOrderCount) / lastMonthOrderCount * 100.0) * 10.0) / 10.0;
+        } else if (thisMonthOrderCount > 0) {
+            orderGrowthPercent = 100.0;
+        }
+
+        // Member Customer Ratio & Table Utilization Ratio
+        long totalOrdersCount = allOrders.size();
+        long ordersWithCustomerCount = allOrders.stream().filter(o -> o.getCustomer() != null).count();
+        double memberCustomerRatio = totalOrdersCount > 0 ? Math.round(((double) ordersWithCustomerCount / totalOrdersCount * 100.0) * 10.0) / 10.0 : 0.0;
+
         ReportSummaryResponse summary = ReportSummaryResponse.builder()
                 .revenue(revenue)
+                .thisMonthRevenue(thisMonthRevenue)
+                .lastMonthRevenue(lastMonthRevenue)
+                .revenueGrowthPercent(revenueGrowthPercent)
+                .thisMonthOrderCount(thisMonthOrderCount)
+                .lastMonthOrderCount(lastMonthOrderCount)
+                .orderGrowthPercent(orderGrowthPercent)
+                .memberCustomerRatio(memberCustomerRatio)
                 .bestSellingItems(bestSellingItems)
                 .mostUsedTables(mostUsedTables)
                 .loyalCustomers(loyalCustomers)
@@ -129,5 +182,6 @@ public class ReportServiceImpl implements ReportService {
                 .build();
 
         return ApiResponse.success("Lấy báo cáo thống kê thành công", summary);
+
     }
 }

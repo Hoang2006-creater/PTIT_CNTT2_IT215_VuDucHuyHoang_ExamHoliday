@@ -1,6 +1,8 @@
 // Rich Dashboard JavaScript with live backend API integrations
 
 let revenueChartInstance = null;
+let orderStatusChartInstance = null;
+let categorySalesChartInstance = null;
 let statisticsDataGlobal = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -20,10 +22,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load user profile details dynamically
     await loadUserProfile();
 
-    // Load Dashboard Metrics (KPIs)
+    // Load Dashboard Metrics (KPIs) & Real-time Table Grid
     await loadDashboardMetrics();
 
-    // Load Statistics and Draw Initial Chart
+    // Load Statistics and Draw Initial Charts (Revenue, Order Status, Category Sales)
     await loadAndRenderCharts();
 
     // Load Statistics Report Summary (Best sellers, Loyal customers)
@@ -173,16 +175,60 @@ async function loadDashboardMetrics() {
                 document.getElementById('kpi-total-customers').textContent = data.totalCustomers || 0;
                 document.getElementById('kpi-total-employees').textContent = data.totalEmployees || 0;
                 document.getElementById('kpi-today-revenue').textContent = formattedTodayRevenue;
-                
+
+                document.getElementById('kpi-serving-tables').textContent = `${data.servingTablesCount || 0} / ${data.totalTables || 0}`;
+                document.getElementById('kpi-empty-tables').textContent = `${data.emptyTablesCount || 0} / ${data.totalTables || 0}`;
+                document.getElementById('kpi-kitchen-pending').textContent = `${data.kitchenPendingItemsCount || 0} món`;
+
+                const utilRatio = (data.totalTables || 0) > 0 ? Math.round(((data.servingTablesCount || 0) / data.totalTables) * 100) : 0;
+                const utilRatioEl = document.getElementById('table-utilization-ratio');
+                if (utilRatioEl) {
+                    utilRatioEl.textContent = utilRatio + '%';
+                }
+
                 const todayOrderCountEl = document.getElementById('kpi-today-order-count');
                 if (todayOrderCountEl) {
                     todayOrderCountEl.innerHTML = `<i class="bi bi-cart"></i> ${data.todayOrderCount || 0} đơn mới`;
                 }
+
+                // Render visual Table Status Grid Map
+                renderDashboardTableGrid(data.tables || []);
             }
         }
     } catch (e) {
         console.error('Failed to load metrics:', e);
     }
+}
+
+
+function renderDashboardTableGrid(tables) {
+    const tableGridEl = document.getElementById('dashboard-table-grid');
+    if (!tableGridEl) return;
+
+    if (!tables || tables.length === 0) {
+        tableGridEl.innerHTML = `<div class="col-12 text-center text-muted py-3">Chưa có thông tin bàn ăn trong cơ sở dữ liệu</div>`;
+        return;
+    }
+
+    const statusMap = {
+        'EMPTY': { class: 'status-empty', label: 'Trống', dotBg: '#10b981' },
+        'RESERVED': { class: 'status-reserved', label: 'Đã đặt', dotBg: '#f59e0b' },
+        'OCCUPIED': { class: 'status-serving', label: 'Đang dùng', dotBg: '#ef4444' }
+    };
+
+    tableGridEl.innerHTML = tables.map(table => {
+        const conf = statusMap[table.status] || statusMap['EMPTY'];
+        const locationStr = table.location ? `<div class="text-muted" style="font-size: 10px;">${table.location}</div>` : '';
+        return `
+            <div class="table-status-card ${conf.class}">
+                <span class="table-badge-dot" style="background-color: ${conf.dotBg};"></span>
+                <div class="table-num">${table.tableNumber}</div>
+                <div class="table-capacity">${table.capacity} Chỗ</div>
+                ${locationStr}
+                <div class="table-time font-weight-bold" style="margin-top: 4px;">${conf.label}</div>
+            </div>
+        `;
+    }).join('');
 }
 
 async function loadAndRenderCharts() {
@@ -193,6 +239,9 @@ async function loadAndRenderCharts() {
             if (result.success && result.data) {
                 statisticsDataGlobal = result.data;
                 renderChart('day', statisticsDataGlobal);
+                renderOrderStatusChart(statisticsDataGlobal.orderStatusDistribution || []);
+                renderCategorySalesChart(statisticsDataGlobal.categorySales || []);
+                renderRecentActivities(statisticsDataGlobal.recentActivities || []);
             }
         }
     } catch (e) {
@@ -284,6 +333,141 @@ function renderChart(type, stats) {
     });
 }
 
+function renderOrderStatusChart(dataList) {
+    const ctx = document.getElementById('orderStatusChart');
+    if (!ctx) return;
+
+    if (orderStatusChartInstance) {
+        orderStatusChartInstance.destroy();
+    }
+
+    const labels = dataList.map(item => item.label);
+    const counts = dataList.map(item => item.count);
+
+    orderStatusChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.85)',  // OPEN (blue)
+                    'rgba(16, 185, 129, 0.85)',  // COMPLETED (green)
+                    'rgba(239, 68, 68, 0.85)'    // CANCELLED (red)
+                ],
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#94a3b8',
+                        font: { family: 'Inter', size: 11 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.parsed} đơn`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderCategorySalesChart(categorySales) {
+    const ctx = document.getElementById('categorySalesChart');
+    if (!ctx) return;
+
+    if (categorySalesChartInstance) {
+        categorySalesChartInstance.destroy();
+    }
+
+    const labels = categorySales.map(item => item.categoryName);
+    const revenues = categorySales.map(item => item.revenue);
+
+    const colors = [
+        'rgba(230, 126, 34, 0.85)',
+        'rgba(139, 30, 63, 0.85)',
+        'rgba(16, 185, 129, 0.85)',
+        'rgba(59, 130, 246, 0.85)',
+        'rgba(245, 158, 11, 0.85)',
+        'rgba(168, 85, 247, 0.85)'
+    ];
+
+    categorySalesChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels.length > 0 ? labels : ['Chưa có dữ liệu'],
+            datasets: [{
+                data: revenues.length > 0 ? revenues : [0],
+                backgroundColor: colors.slice(0, Math.max(labels.length, 1)),
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#94a3b8',
+                        font: { family: 'Inter', size: 11 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${(context.parsed || 0).toLocaleString('vi-VN')}đ`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderRecentActivities(activities) {
+    const listEl = document.getElementById('recent-activities-list');
+    if (!listEl) return;
+
+    if (!activities || activities.length === 0) {
+        listEl.innerHTML = `<div class="text-center text-muted py-3">Chưa có hoạt động nào được ghi nhận</div>`;
+        return;
+    }
+
+    const typeClassMap = {
+        'SUCCESS': 'notif-icon-success',
+        'INFO': 'notif-icon-info',
+        'WARNING': 'notif-icon-warning',
+        'DANGER': 'notif-icon-danger'
+    };
+
+    listEl.innerHTML = activities.map(act => {
+        const iconClass = typeClassMap[act.type] || 'notif-icon-info';
+        return `
+            <div class="notif-item">
+                <div class="notif-icon-wrapper ${iconClass}">
+                    <i class="bi ${act.icon || 'bi-bell'}"></i>
+                </div>
+                <div class="notif-content">
+                    <p class="notif-text"><strong>${act.title}</strong></p>
+                    <span class="notif-time">${act.description} • ${act.timeStr}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 async function loadReportSummary() {
     try {
         const response = await customFetch('/api/reports/summary');
@@ -292,7 +476,43 @@ async function loadReportSummary() {
             if (result.success && result.data) {
                 const data = result.data;
 
-                // 1. Populate Best Sellers Table
+                // 1. Populate Report KPI Cards (for report/list.html)
+                const monthRevEl = document.getElementById('report-month-revenue');
+                if (monthRevEl) {
+                    monthRevEl.textContent = (data.thisMonthRevenue || 0).toLocaleString('vi-VN') + 'đ';
+                }
+
+                const monthRevGrowthEl = document.getElementById('report-month-revenue-growth');
+                if (monthRevGrowthEl) {
+                    const growth = data.revenueGrowthPercent || 0;
+                    if (growth >= 0) {
+                        monthRevGrowthEl.innerHTML = `<i class="bi bi-arrow-up-right text-success me-1"></i>+${growth}% so với tháng trước`;
+                    } else {
+                        monthRevGrowthEl.innerHTML = `<i class="bi bi-arrow-down-right text-danger me-1"></i>${growth}% so với tháng trước`;
+                    }
+                }
+
+                const monthOrdersEl = document.getElementById('report-month-orders');
+                if (monthOrdersEl) {
+                    monthOrdersEl.textContent = (data.thisMonthOrderCount || 0) + ' đơn';
+                }
+
+                const monthOrdersGrowthEl = document.getElementById('report-month-orders-growth');
+                if (monthOrdersGrowthEl) {
+                    const growth = data.orderGrowthPercent || 0;
+                    if (growth >= 0) {
+                        monthOrdersGrowthEl.innerHTML = `<i class="bi bi-arrow-up-right text-success me-1"></i>+${growth}% so với tháng trước`;
+                    } else {
+                        monthOrdersGrowthEl.innerHTML = `<i class="bi bi-arrow-down-right text-danger me-1"></i>${growth}% so với tháng trước`;
+                    }
+                }
+
+                const memberRatioEl = document.getElementById('member-customer-ratio');
+                if (memberRatioEl) {
+                    memberRatioEl.textContent = (data.memberCustomerRatio || 0) + '%';
+                }
+
+                // 2. Populate Best Sellers Table
                 const bestSellersTbody = document.getElementById('best-selling-items-tbody');
                 if (bestSellersTbody) {
                     const items = data.bestSellingItems || [];
@@ -309,16 +529,17 @@ async function loadReportSummary() {
                     }
                 }
 
-                // 2. Populate Loyal Customers Table
+                // 3. Populate Loyal Customers Table
                 const loyalCustomersTbody = document.getElementById('loyal-customers-tbody');
                 if (loyalCustomersTbody) {
                     const customers = data.loyalCustomers || [];
                     if (customers.length === 0) {
-                        loyalCustomersTbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary py-3">Chưa có khách hàng giao dịch</td></tr>`;
+                        loyalCustomersTbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary py-3">Chưa có khách hàng giao dịch</td></tr>`;
                     } else {
                         loyalCustomersTbody.innerHTML = customers.map(cust => `
                             <tr>
-                                <td><strong>${cust.fullName}</strong><br><small class="text-muted">${cust.phone || ''}</small></td>
+                                <td><strong>${cust.fullName}</strong></td>
+                                <td><small class="text-muted">${cust.phone || 'Chưa có SĐT'}</small></td>
                                 <td class="text-end text-warning"><strong>${cust.totalSpent.toLocaleString('vi-VN')}đ</strong></td>
                             </tr>
                         `).join('');
@@ -330,3 +551,5 @@ async function loadReportSummary() {
         console.error('Failed to load report summary:', e);
     }
 }
+
+

@@ -13,9 +13,19 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ReportSummaryResponse {
+
     private BigDecimal revenue;
+    private BigDecimal thisMonthRevenue;
+    private BigDecimal lastMonthRevenue;
+    private double revenueGrowthPercent;
+    private long thisMonthOrderCount;
+    private long lastMonthOrderCount;
+    private double orderGrowthPercent;
+    private double memberCustomerRatio;
+    private double tableUtilizationRatio;
     private List<BestSellingItemResponse> bestSellingItems;
     private List<MostUsedTableResponse> mostUsedTables;
     private List<LoyalCustomerResponse> loyalCustomers;
     private List<TopEmployeeResponse> topEmployees;
 }
+

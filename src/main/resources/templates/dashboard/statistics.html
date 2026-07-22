@@ -5,32 +5,57 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="glass-card p-4">
-                    <h3 class="text-white mb-4"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Biểu đồ thống kê chi tiết</h3>
+                    <h3 class="text-white mb-4"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Biểu đồ thống kê & Báo cáo chi tiết</h3>
                     <hr class="border-secondary mb-4">
                     
-                    <div class="row g-4">
+                    <div class="row g-4 mb-4">
                         <div class="col-md-6">
-                            <div class="card bg-dark border-secondary p-4 text-center">
+                            <div class="card bg-dark border-secondary p-4 text-center h-100">
                                 <h6 class="text-secondary small mb-4">TỶ LỆ KHÁCH HÀNG THÀNH VIÊN</h6>
-                                <div class="mx-auto mb-4" style="width: 150px; height: 150px; border-radius: 50%; border: 15px solid var(--bs-primary); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white;">
-                                    <strong>74%</strong>
+                                <div class="mx-auto mb-4" style="width: 150px; height: 150px; border-radius: 50%; border: 12px solid #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 26px; color: white; background: rgba(59, 130, 246, 0.1);">
+                                    <strong id="member-customer-ratio">0%</strong>
                                 </div>
-                                <p class="text-secondary small m-0">Tỷ lệ khách hàng đăng ký tích điểm thành viên khi thanh toán hóa đơn.</p>
+                                <p class="text-secondary small m-0">Tỷ lệ đơn hàng được ghi nhận tích điểm thành viên từ dữ liệu hệ thống.</p>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card bg-dark border-secondary p-4 text-center">
-                                <h6 class="text-secondary small mb-4">TỶ LỆ BÀN ĂN ĐANG SỬ DỤNG TRUNG BÌNH</h6>
-                                <div class="mx-auto mb-4" style="width: 150px; height: 150px; border-radius: 50%; border: 15px solid var(--bs-success); display: flex; align-items: center; justify-content: center; font-size: 24px; color: white;">
-                                    <strong>68%</strong>
+                            <div class="card bg-dark border-secondary p-4 text-center h-100">
+                                <h6 class="text-secondary small mb-4">TỶ LỆ BÀN ĂN ĐANG SỬ DỤNG HÌNH THỨC TRỰC TIẾP</h6>
+                                <div class="mx-auto mb-4" style="width: 150px; height: 150px; border-radius: 50%; border: 12px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 26px; color: white; background: rgba(16, 185, 129, 0.1);">
+                                    <strong id="table-utilization-ratio">0%</strong>
                                 </div>
-                                <p class="text-secondary small m-0">Công suất khai thác sử dụng bàn ăn trung bình vào các giờ cao điểm.</p>
+                                <p class="text-secondary small m-0">Tỷ lệ công suất khai thác sử dụng bàn ăn thực tế tại nhà hàng hiện tại.</p>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Charts Row -->
+                    <div class="row g-4">
+                        <div class="col-12 col-md-6">
+                            <div class="card bg-dark border-secondary p-4 h-100">
+                                <h6 class="text-white mb-3"><i class="bi bi-pie-chart-fill text-info me-2"></i>Trạng thái đơn hàng</h6>
+                                <div style="position: relative; height: 250px;">
+                                    <canvas id="orderStatusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="card bg-dark border-secondary p-4 h-100">
+                                <h6 class="text-white mb-3"><i class="bi bi-bar-chart-line-fill text-success me-2"></i>Cơ cấu doanh thu theo danh mục</h6>
+                                <div style="position: relative; height: 250px;">
+                                    <canvas id="categorySalesChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Chart.js Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
+
